@@ -17,7 +17,7 @@
 
 ---
 
-## ✨ Features
+##  Features
 
 ### Complete Chess Rules
 - **Full piece movement** — all six piece types with correct move logic
@@ -28,19 +28,19 @@
 - **Checkmate & Stalemate** — automatic detection with result modal
 
 ### Polished UI/UX
-- 🎨 **Dark luxury theme** — refined dark UI with glassmorphism and ambient glow effects
-- ♟️ **Chess.com-inspired board** — classic green & cream color palette
-- 🏷️ **Rank & file labels** — algebraic notation displayed around the board
-- 🔄 **Board flipping** — rotate the board 180° to play from either perspective
-- 📊 **Captured pieces tracker** — displays captured pieces for both players, sorted by value
-- 💡 **Move indicators** — valid move dots and capture rings shown on piece selection
-- ✅ **Last move highlight** — previous move squares are highlighted for context
-- ⚡ **Smooth animations** — piece hover effects, modal transitions, and ambient pulse
-- 📱 **Fully responsive** — adapts beautifully to any screen size
+-  **Dark luxury theme** — refined dark UI with glassmorphism and ambient glow effects
+-  **Chess.com-inspired board** — classic green & cream color palette
+-  **Rank & file labels** — algebraic notation displayed around the board
+-  **Board flipping** — rotate the board 180° to play from either perspective
+-  **Captured pieces tracker** — displays captured pieces for both players, sorted by value
+-  **Move indicators** — valid move dots and capture rings shown on piece selection
+-  **Last move highlight** — previous move squares are highlighted for context
+-  **Smooth animations** — piece hover effects, modal transitions, and ambient pulse
+-  **Fully responsive** — adapts beautifully to any screen size
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 All you need is a modern web browser — no build tools, frameworks, or dependencies required.
@@ -68,7 +68,7 @@ All you need is a modern web browser — no build tools, frameworks, or dependen
 
 ---
 
-## 🎮 How to Play
+##  How to Play
 
 | Action | How |
 |---|---|
@@ -85,7 +85,7 @@ All you need is a modern web browser — no build tools, frameworks, or dependen
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 ChessGame/
@@ -120,7 +120,7 @@ ChessGame/
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! Here are some ideas:
 
@@ -143,16 +143,11 @@ Contributions are welcome! Here are some ideas:
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
----
 
 <div align="center">
 
 **Built with ♟️ and ❤️**
 
-⭐ Star this repo if you found it useful!
+ Star this repo if you found it useful!
 
 </div>
