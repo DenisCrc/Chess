@@ -394,6 +394,40 @@ body {
 }
 
 /* ============================================================
+   DRAG AND DROP
+   ============================================================ */
+/* Source square fades when dragging */
+.dragging-source .piece {
+    opacity: 0.35;
+    transform: scale(1) !important;
+}
+
+/* Hover highlight on target square during drag */
+.drag-over {
+    box-shadow: inset 0 0 0 3px rgba(124, 92, 191, 0.6);
+}
+
+/* Off-screen ghost element used as custom drag image */
+.drag-ghost {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    font-size: 58px;
+    line-height: 1;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+/* Grab cursor on draggable pieces */
+.piece[draggable="true"] {
+    cursor: grab;
+}
+
+.piece[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+/* ============================================================
    TURN INDICATOR
    ============================================================ */
 .turn-indicator {

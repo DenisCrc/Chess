@@ -101,7 +101,8 @@ function renderPieces() {
             const piece = gameState[row][col];
             if (piece) {
                 const colorClass = piece === piece.toUpperCase() ? 'white-piece' : 'black-piece';
-                el.innerHTML = `<span class="piece ${colorClass}">${pieceSymbols[piece]}</span>`;
+                const isDraggable = getPieceColor(piece) === currentTurn;
+                el.innerHTML = `<span class="piece ${colorClass}" draggable="${isDraggable}">${pieceSymbols[piece]}</span>`;
             } else {
                 el.innerHTML = '';
             }
@@ -443,9 +444,88 @@ function checkEndConditions() {
 }
 
 // ============================================================
+// SHARED MOVE EXECUTION
+// ============================================================
+/**
+ * Attempts to execute a move. Returns true if the move was made,
+ * false if the move was invalid, or 'promotion' if a promotion modal was shown.
+ */
+function executeMove(fromRow, fromCol, toRow, toCol) {
+    if (!isValidMove(fromRow, fromCol, toRow, toCol) || !simulatesToSafe(fromRow, fromCol, toRow, toCol)) {
+        return false;
+    }
+
+    let pieceMoving = gameState[fromRow][fromCol];
+    const color = getPieceColor(pieceMoving);
+
+    // Capture tracking
+    const captured = gameState[toRow][toCol];
+    if (captured) {
+        const capColor = getPieceColor(captured);
+        const arr = capColor === 'black' ? capturedPieces.white : capturedPieces.black;
+        arr.push(captured);
+        arr.sort((a, b) => pieceValues[b.toLowerCase()] - pieceValues[a.toLowerCase()]);
+    }
+
+    // Pawn promotion
+    if (pieceMoving.toLowerCase() === 'p' && (toRow === 0 || toRow === 7)) {
+        // Undo capture tracking (promotion modal will redo it)
+        if (captured) {
+            const capColor = getPieceColor(captured);
+            const arr = capColor === 'black' ? capturedPieces.white : capturedPieces.black;
+            arr.pop();
+        }
+        clearSelection();
+        showPromotionModal(color, fromRow, fromCol, toRow, toCol);
+        return 'promotion';
+    }
+
+    // En passant capture
+    if (pieceMoving.toLowerCase() === 'p' && fromCol !== toCol && gameState[toRow][toCol] === '') {
+        const epPiece = gameState[fromRow][toCol];
+        const epColor = getPieceColor(epPiece);
+        const arr = epColor === 'black' ? capturedPieces.white : capturedPieces.black;
+        arr.push(epPiece);
+        arr.sort((a, b) => pieceValues[b.toLowerCase()] - pieceValues[a.toLowerCase()]);
+        gameState[fromRow][toCol] = '';
+    }
+
+    // Castling
+    if (pieceMoving.toLowerCase() === 'k' && Math.abs(toCol - fromCol) === 2) {
+        if (toCol > fromCol) {
+            gameState[toRow][toCol - 1] = gameState[toRow][toCol + 1];
+            gameState[toRow][toCol + 1] = '';
+        } else {
+            gameState[toRow][toCol + 1] = gameState[toRow][toCol - 2];
+            gameState[toRow][toCol - 2] = '';
+        }
+    }
+
+    // Update castling rights
+    if (pieceMoving === 'K') { castlingRights.white.kingSide = false; castlingRights.white.queenSide = false; }
+    if (pieceMoving === 'k') { castlingRights.black.kingSide = false; castlingRights.black.queenSide = false; }
+    if (pieceMoving === 'R' && fromRow === 7 && fromCol === 0) castlingRights.white.queenSide = false;
+    if (pieceMoving === 'R' && fromRow === 7 && fromCol === 7) castlingRights.white.kingSide = false;
+    if (pieceMoving === 'r' && fromRow === 0 && fromCol === 0) castlingRights.black.queenSide = false;
+    if (pieceMoving === 'r' && fromRow === 0 && fromCol === 7) castlingRights.black.kingSide = false;
+
+    // Execute move
+    gameState[toRow][toCol] = pieceMoving;
+    gameState[fromRow][fromCol] = '';
+    lastMove = { piece: pieceMoving, fromRow, fromCol, toRow, toCol };
+
+    clearSelection();
+    currentTurn = currentTurn === 'white' ? 'black' : 'white';
+    renderPieces();
+    checkEndConditions();
+    return true;
+}
+
+// ============================================================
 // CLICK HANDLER
 // ============================================================
 board.addEventListener('click', function (event) {
+    if (isDragging) return; // Ignore clicks that are part of a drag
     const target = event.target.closest('.square');
     if (!target) return;
 
@@ -472,72 +552,9 @@ board.addEventListener('click', function (event) {
             return;
         }
 
-        // Attempt move
-        if (isValidMove(fromRow, fromCol, row, col) && simulatesToSafe(fromRow, fromCol, row, col)) {
-            let pieceMoving = gameState[fromRow][fromCol];
-            const color = getPieceColor(pieceMoving);
-
-            // Capture tracking
-            const captured = gameState[row][col];
-            if (captured) {
-                const capColor = getPieceColor(captured);
-                const arr = capColor === 'black' ? capturedPieces.white : capturedPieces.black;
-                arr.push(captured);
-                arr.sort((a, b) => pieceValues[b.toLowerCase()] - pieceValues[a.toLowerCase()]);
-            }
-
-            // Pawn promotion
-            if (pieceMoving.toLowerCase() === 'p' && (row === 0 || row === 7)) {
-                // Undo capture tracking (promotion modal will redo it)
-                if (captured) {
-                    const capColor = getPieceColor(captured);
-                    const arr = capColor === 'black' ? capturedPieces.white : capturedPieces.black;
-                    arr.pop();
-                }
-                clearSelection();
-                showPromotionModal(color, fromRow, fromCol, row, col);
-                return;
-            }
-
-            // En passant capture
-            if (pieceMoving.toLowerCase() === 'p' && fromCol !== col && gameState[row][col] === '') {
-                const epPiece = gameState[fromRow][col];
-                const epColor = getPieceColor(epPiece);
-                const arr = epColor === 'black' ? capturedPieces.white : capturedPieces.black;
-                arr.push(epPiece);
-                arr.sort((a, b) => pieceValues[b.toLowerCase()] - pieceValues[a.toLowerCase()]);
-                gameState[fromRow][col] = '';
-            }
-
-            // Castling
-            if (pieceMoving.toLowerCase() === 'k' && Math.abs(col - fromCol) === 2) {
-                if (col > fromCol) {
-                    gameState[row][col - 1] = gameState[row][col + 1];
-                    gameState[row][col + 1] = '';
-                } else {
-                    gameState[row][col + 1] = gameState[row][col - 2];
-                    gameState[row][col - 2] = '';
-                }
-            }
-
-            // Update castling rights
-            if (pieceMoving === 'K') { castlingRights.white.kingSide = false; castlingRights.white.queenSide = false; }
-            if (pieceMoving === 'k') { castlingRights.black.kingSide = false; castlingRights.black.queenSide = false; }
-            if (pieceMoving === 'R' && fromRow === 7 && fromCol === 0) castlingRights.white.queenSide = false;
-            if (pieceMoving === 'R' && fromRow === 7 && fromCol === 7) castlingRights.white.kingSide = false;
-            if (pieceMoving === 'r' && fromRow === 0 && fromCol === 0) castlingRights.black.queenSide = false;
-            if (pieceMoving === 'r' && fromRow === 0 && fromCol === 7) castlingRights.black.kingSide = false;
-
-            // Execute move
-            gameState[row][col] = pieceMoving;
-            gameState[fromRow][fromCol] = '';
-            lastMove = { piece: pieceMoving, fromRow, fromCol, toRow: row, toCol: col };
-
-            clearSelection();
-            currentTurn = currentTurn === 'white' ? 'black' : 'white';
-            renderPieces();
-            checkEndConditions();
-        } else {
+        // Attempt move via shared function
+        const result = executeMove(fromRow, fromCol, row, col);
+        if (!result) {
             clearSelection();
         }
     } else {
@@ -547,6 +564,97 @@ board.addEventListener('click', function (event) {
             showValidMoves(row, col);
         }
     }
+});
+
+// ============================================================
+// DRAG AND DROP
+// ============================================================
+let isDragging = false;
+let dragFrom = null;
+
+board.addEventListener('dragstart', function (event) {
+    const square = event.target.closest('.square');
+    if (!square) { event.preventDefault(); return; }
+
+    const row = parseInt(square.dataset.row);
+    const col = parseInt(square.dataset.col);
+    const piece = gameState[row][col];
+
+    if (!piece || getPieceColor(piece) !== currentTurn) {
+        event.preventDefault();
+        return;
+    }
+
+    isDragging = true;
+    dragFrom = { row, col };
+
+    // Clear any click-based selection and show valid moves for the dragged piece
+    clearSelection();
+    selectedSquare = { row, col };
+    square.classList.add('selected');
+    showValidMoves(row, col);
+
+    // Create a custom drag image from the piece
+    const pieceEl = square.querySelector('.piece');
+    if (pieceEl) {
+        const ghost = pieceEl.cloneNode(true);
+        ghost.classList.add('drag-ghost');
+        document.body.appendChild(ghost);
+        event.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, ghost.offsetHeight / 2);
+        // Remove ghost from DOM after the drag image is captured
+        requestAnimationFrame(() => ghost.remove());
+    }
+
+    event.dataTransfer.effectAllowed = 'move';
+    // Mark the source square as being dragged
+    square.classList.add('dragging-source');
+});
+
+board.addEventListener('dragover', function (event) {
+    if (!dragFrom) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+
+    // Highlight the square being hovered
+    const square = event.target.closest('.square');
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    if (square) {
+        square.classList.add('drag-over');
+    }
+});
+
+board.addEventListener('dragleave', function (event) {
+    const square = event.target.closest('.square');
+    if (square) square.classList.remove('drag-over');
+});
+
+board.addEventListener('drop', function (event) {
+    event.preventDefault();
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+
+    if (!dragFrom) return;
+
+    const square = event.target.closest('.square');
+    if (!square) return;
+
+    const toRow = parseInt(square.dataset.row);
+    const toCol = parseInt(square.dataset.col);
+
+    // Don't move to same square
+    if (dragFrom.row === toRow && dragFrom.col === toCol) {
+        return;
+    }
+
+    executeMove(dragFrom.row, dragFrom.col, toRow, toCol);
+});
+
+board.addEventListener('dragend', function (event) {
+    document.querySelectorAll('.dragging-source').forEach(el => el.classList.remove('dragging-source'));
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    clearSelection();
+    dragFrom = null;
+    // Delay resetting isDragging so the click event that fires after dragend is suppressed
+    setTimeout(() => { isDragging = false; }, 0);
 });
 
 // ============================================================
