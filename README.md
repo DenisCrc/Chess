@@ -26,6 +26,8 @@
 - **Pawn Promotion** — interactive modal to choose Queen, Rook, Bishop, or Knight
 - **Check Detection** — real-time check highlighting with visual indicator on the king
 - **Checkmate & Stalemate** — automatic detection with result modal
+- **Stockfish Engine Analysis** — real-time evaluation and top 5 best move suggestions using Stockfish 10 (WASM)
+- **Drag and Drop** — move pieces intuitively by dragging or using the classic click-to-move method
 
 ### Polished UI/UX
 -  **Dark luxury theme** — refined dark UI with glassmorphism and ambient glow effects
@@ -72,9 +74,9 @@ All you need is a modern web browser — no build tools, frameworks, or dependen
 
 | Action | How |
 |---|---|
-| **Select a piece** | Click on any piece of the current player's color |
+| **Select a piece** | Click on any piece or start dragging |
 | **See valid moves** | Dots appear on valid squares; rings appear on capturable pieces |
-| **Move a piece** | Click a highlighted square to move |
+| **Move a piece** | Drag the piece to the target square or click the destination |
 | **Deselect** | Click the selected piece again, or click an empty invalid square |
 | **Promote a pawn** | Move a pawn to the last rank — a modal lets you choose the new piece |
 | **Flip the board** | Click the **Rotește Tabla** button |
@@ -89,9 +91,17 @@ All you need is a modern web browser — no build tools, frameworks, or dependen
 
 ```
 ChessGame/
+├── js/             # Modular JavaScript files
+│   ├── state.js    # Global state and constants
+│   ├── board.js    # Board rendering and updates
+│   ├── rules.js    # Chess logic and validation
+│   ├── ui.js       # Turn indicators and modals
+│   ├── moves.js    # Move execution and game actions
+│   ├── input.js    # Click and drag handlers
+│   └── engine.js   # Stockfish integration
+│   └── init.js    # Application bootstrap
 ├── main.html       # Page structure, modals, and layout
 ├── style.css       # Design tokens, board styling, animations, responsive rules
-├── script.js       # Game state, piece logic, UI updates, event handling
 ├── screenshot.png  # Preview image
 └── README.md       # This file
 ```
@@ -100,9 +110,9 @@ ChessGame/
 
 | File | Responsibility |
 |---|---|
-| **main.html** | Semantic HTML5 structure — header, chessboard grid, player bars, turn indicator, promotion & result modals |
-| **style.css** | CSS custom properties design system, chess.com-inspired board palette, dark UI theme, glassmorphism effects, animations, responsive breakpoints |
-| **script.js** | 8×8 array game state, full piece movement validation, check/checkmate/stalemate detection, castling rights tracking, en passant logic, pawn promotion flow, board flipping, captured pieces tracking |
+| **main.html** | Semantic HTML5 structure — header, chessboard grid, analysis panel, player bars, turn indicator, promotion & result modals |
+| **style.css** | CSS custom properties design system, two-column layout, dark UI theme, glassmorphism effects, animations, responsive breakpoints |
+| **js/** | Modular architecture — separate files for state management, chess rules, board rendering, move execution, input handling, and Stockfish engine integration |
 
 ---
 
@@ -112,7 +122,8 @@ ChessGame/
 |---|---|
 | **HTML5** | Semantic page structure |
 | **CSS3** | Custom properties, Grid layout, animations, backdrop-filter, gradients |
-| **Vanilla JavaScript** | Game logic, DOM manipulation, event handling |
+| **Vanilla JavaScript** | Modular game logic, DOM manipulation, event handling |
+| **Stockfish.js** | UCI chess engine compiled to WASM for browser-side analysis |
 | **Google Fonts** | [Inter](https://fonts.google.com/specimen/Inter) (UI) + [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) (labels) |
 | **Unicode Chess Symbols** | ♔♕♖♗♘♙ — no external image assets needed |
 
@@ -124,12 +135,12 @@ ChessGame/
 
 Contributions are welcome! Here are some ideas:
 
-- [ ] Add move history / notation panel (PGN)
+- [x] Add move history / notation panel (PGN)
+- [x] Drag-and-drop piece movement
+- [x] AI opponent (Stockfish analysis)
 - [ ] Implement undo/redo functionality
 - [ ] Add a chess clock / timer
 - [ ] Sound effects for moves, captures, and check
-- [ ] AI opponent (minimax with alpha-beta pruning)
-- [ ] Drag-and-drop piece movement
 - [ ] FEN import/export
 - [ ] Multiplayer over WebSocket
 
