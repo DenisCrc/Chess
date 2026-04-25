@@ -35,10 +35,8 @@ function updateLabels() {
 
 function renderPieces() {
     // Clear highlights
-    document.querySelectorAll('.last-move').forEach(el => el.classList.remove('last-move'));
-    document.querySelectorAll('.in-check').forEach(el => el.classList.remove('in-check'));
-    document.querySelectorAll('.valid-move, .valid-capture').forEach(el => {
-        el.classList.remove('valid-move', 'valid-capture');
+    document.querySelectorAll('.last-move, .in-check, .valid-move, .valid-capture, .dragging-source, .drag-over').forEach(el => {
+        el.classList.remove('last-move', 'in-check', 'valid-move', 'valid-capture', 'dragging-source', 'drag-over');
     });
 
     // Last move highlight

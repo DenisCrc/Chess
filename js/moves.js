@@ -35,7 +35,13 @@ function resetGame() {
 }
 
 function clearSelection() {
-    document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    // Clear highlights
+    document.querySelectorAll('.last-move, .in-check, .valid-move, .valid-capture, .dragging-source, .drag-over').forEach(el => {
+        el.classList.remove('last-move', 'in-check', 'valid-move', 'valid-capture', 'dragging-source', 'drag-over');
+    });
+    document.querySelectorAll('.selected').forEach(el => {
+        el.classList.remove('selected');
+    });
     clearValidMoves();
     selectedSquare = null;
 }
