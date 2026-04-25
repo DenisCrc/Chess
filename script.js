@@ -56,11 +56,11 @@ function createBoard() {
 }
 
 function updateLabels() {
-    const files = ['a','b','c','d','e','f','g','h'];
-    const ranks = ['8','7','6','5','4','3','2','1'];
+    const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
     const fileEls = document.querySelectorAll('.file-labels span');
     const rankEls = document.querySelectorAll('#rank-labels-left span');
-    
+
     fileEls.forEach((el, i) => {
         const idx = i % 8;
         el.textContent = isFlipped ? files[7 - idx] : files[idx];
@@ -151,14 +151,14 @@ function updatePlayerBars() {
     const topBar = document.getElementById('player-top');
     const bottomBar = document.getElementById('player-bottom');
 
-    topBar.classList.toggle('active-player', 
+    topBar.classList.toggle('active-player',
         (isFlipped ? 'white' : 'black') === currentTurn);
-    bottomBar.classList.toggle('active-player', 
+    bottomBar.classList.toggle('active-player',
         (isFlipped ? 'black' : 'white') === currentTurn);
 
-    document.getElementById('white-captures').textContent = 
+    document.getElementById('white-captures').textContent =
         capturedPieces.white.map(p => pieceSymbols[p]).join('');
-    document.getElementById('black-captures').textContent = 
+    document.getElementById('black-captures').textContent =
         capturedPieces.black.map(p => pieceSymbols[p]).join('');
 
     // Swap player bar labels when flipped
@@ -343,8 +343,8 @@ function showPromotionModal(color, fromRow, fromCol, toRow, toCol) {
     pendingPromotion = { fromRow, fromCol, toRow, toCol };
     const modal = document.getElementById('promotion-modal');
     const choices = document.getElementById('promotion-choices');
-    const pieces = color === 'white' ? ['Q','R','B','N'] : ['q','r','b','n'];
-    
+    const pieces = color === 'white' ? ['Q', 'R', 'B', 'N'] : ['q', 'r', 'b', 'n'];
+
     choices.innerHTML = '';
     pieces.forEach(p => {
         const btn = document.createElement('div');
