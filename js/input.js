@@ -1,7 +1,7 @@
 // ============================================================
 // CLICK HANDLER
 // ============================================================
-board.addEventListener('click', function (event) {
+board.addEventListener('click', async function (event) {
     if (isDragging) return;
     const target = event.target.closest('.square');
     if (!target) return;
@@ -27,7 +27,7 @@ board.addEventListener('click', function (event) {
             return;
         }
 
-        const result = executeMove(fromRow, fromCol, row, col);
+        const result = await executeMove(fromRow, fromCol, row, col);
         if (!result) {
             clearSelection();
         }
@@ -97,7 +97,7 @@ board.addEventListener('dragleave', function (event) {
     if (square) square.classList.remove('drag-over');
 });
 
-board.addEventListener('drop', function (event) {
+board.addEventListener('drop', async function (event) {
     event.preventDefault();
     document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
 
@@ -113,7 +113,7 @@ board.addEventListener('drop', function (event) {
         return;
     }
 
-    executeMove(dragFrom.row, dragFrom.col, toRow, toCol);
+    await executeMove(dragFrom.row, dragFrom.col, toRow, toCol);
 });
 
 board.addEventListener('dragend', function (event) {

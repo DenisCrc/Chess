@@ -19,11 +19,6 @@ function updatePlayerBars() {
     bottomBar.classList.toggle('active-player',
         (isFlipped ? 'black' : 'white') === currentTurn);
 
-    document.getElementById('white-captures').textContent =
-        capturedPieces.white.map(p => pieceSymbols[p]).join('');
-    document.getElementById('black-captures').textContent =
-        capturedPieces.black.map(p => pieceSymbols[p]).join('');
-
     // Swap player bar labels when flipped
     const topName = topBar.querySelector('.player-name');
     const bottomName = bottomBar.querySelector('.player-name');
@@ -37,9 +32,6 @@ function updatePlayerBars() {
         topAvatar.className = 'player-avatar white-avatar';
         bottomAvatar.textContent = '♚';
         bottomAvatar.className = 'player-avatar black-avatar';
-        document.getElementById('white-captures').parentElement === topBar.querySelector('.player-info')
-            ? null
-            : swapCaptures();
     } else {
         topName.textContent = 'Negru';
         bottomName.textContent = 'Alb';
@@ -49,8 +41,6 @@ function updatePlayerBars() {
         bottomAvatar.className = 'player-avatar white-avatar';
     }
 }
-
-function swapCaptures() { /* handled via render */ }
 
 // ============================================================
 // PROMOTION MODAL
@@ -74,28 +64,17 @@ function showPromotionModal(color, fromRow, fromCol, toRow, toCol) {
     modal.classList.add('visible');
 }
 
-function completePromotion(chosenPiece) {
+async function completePromotion(chosenPiece) {
     const { fromRow, fromCol, toRow, toCol } = pendingPromotion;
-    const captured = gameState[toRow][toCol];
-    if (captured) {
-        const capColor = getPieceColor(captured);
-        const sortedArr = capColor === 'black' ? capturedPieces.white : capturedPieces.black;
-        sortedArr.push(captured);
-        sortedArr.sort((a, b) => pieceValues[b.toLowerCase()] - pieceValues[a.toLowerCase()]);
+    const promoChar = chosenPiece.toLowerCase();
+
+    // Call executeMove with promotion
+    const result = await executeMove(fromRow, fromCol, toRow, toCol, promoChar);
+    
+    if (result === true) {
+        document.getElementById('promotion-modal').classList.remove('visible');
+        pendingPromotion = null;
     }
-
-    gameState[toRow][toCol] = chosenPiece;
-    gameState[fromRow][fromCol] = '';
-    lastMove = { piece: chosenPiece, fromRow, fromCol, toRow, toCol };
-
-    document.getElementById('promotion-modal').classList.remove('visible');
-    pendingPromotion = null;
-
-    currentTurn = currentTurn === 'white' ? 'black' : 'white';
-    clearSelection();
-    renderPieces();
-    checkEndConditions();
-    analyzePosition();
 }
 
 // ============================================================
