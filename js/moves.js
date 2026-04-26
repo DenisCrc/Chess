@@ -61,6 +61,13 @@ async function executeMove(fromRow, fromCol, toRow, toCol, promotion = null) {
         }
 
         syncStateFromBackend(data);
+        
+        // Start timer on first move
+        if (!gameStarted) {
+            gameStarted = true;
+            startTimer();
+        }
+
         clearSelection();
         return true;
     } catch (err) {

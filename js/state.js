@@ -26,6 +26,14 @@ let castlingRights = {
     black: { kingSide: true, queenSide: true }
 };
 
+// --- Timer State ---
+let initialTime = 600; // default 10 min
+let whiteTime = 600;
+let blackTime = 600;
+let timerInterval = null;
+let isTimerActive = false;
+let gameStarted = false;
+
 // --- FEN to Internal State ---
 function syncStateFromBackend(data) {
     const fen = data.fen;
@@ -99,4 +107,6 @@ function updateUI() {
     // Update captures
     document.getElementById('white-captures').innerHTML = capturedPieces.white.map(p => `<span>${pieceSymbols[p] || p}</span>`).join('');
     document.getElementById('black-captures').innerHTML = capturedPieces.black.map(p => `<span>${pieceSymbols[p] || p}</span>`).join('');
+
+    updatePlayerBars();
 }

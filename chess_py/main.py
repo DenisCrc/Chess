@@ -34,6 +34,7 @@ def main():
     clock = pygame.time.Clock()
     result_btn: list = []          # filled by renderer with "New Game" button rect
     need_engine_update = True      # trigger analysis on first frame
+    show_time_modal = True         # start with time selection
 
     while True:
         # ── Engine polling ──────────────────────────────────────────────
@@ -43,6 +44,10 @@ def main():
         if engine.ready and need_engine_update and game.game_over is None:
             engine.analyze(game.board)
             need_engine_update = False
+
+        # ── Timer tick ──────────────────────────────────────────────────
+        dt = clock.tick(60) / 1000.0  # seconds
+        game.tick(dt)
 
         # ── Events ─────────────────────────────────────────────────────
         for event in pygame.event.get():
@@ -57,12 +62,22 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 pos = event.pos
 
+                # Time Selection Modal
+                if show_time_modal:
+                    secs = renderer.get_time_format_at(pos)
+                    if secs is not None:
+                        game.initial_time = secs
+                        game.white_time = float(secs)
+                        game.black_time = float(secs)
+                        game.reset()
+                        show_time_modal = False
+                        need_engine_update = True
+                    continue
+
                 # Result modal "New Game"
                 for r in result_btn:
                     if r.collidepoint(pos):
-                        game.reset()
-                        engine.analyze(game.board)
-                        need_engine_update = False
+                        show_time_modal = True
                         break
                 else:
                     # Promotion modal choice
@@ -79,9 +94,7 @@ def main():
                             game.is_flipped = not game.is_flipped
                             game.deselect()
                         elif btn == "new":
-                            game.reset()
-                            engine.analyze(game.board)
-                            need_engine_update = False
+                            show_time_modal = True
 
                         # Board click
                         else:
@@ -105,6 +118,7 @@ def main():
                                         result = game.try_move(from_sq, sq)
                                         if result == 'ok':
                                             need_engine_update = True
+                                            game.timer_active = True
                                         elif result == 'promotion':
                                             pass
                                         else:
@@ -135,6 +149,7 @@ def main():
                         result = game.try_move(from_sq, to_sq)
                         if result == 'ok':
                             need_engine_update = True
+                            game.timer_active = True
                         elif result == 'promotion':
                             pass   # modal shown next frame
                         else:
@@ -152,9 +167,7 @@ def main():
             # ── Keyboard shortcuts ──────────────────────────────────────
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_F5 or event.key == pygame.K_r:
-                    game.reset()
-                    engine.analyze(game.board)
-                    need_engine_update = False
+                    show_time_modal = True
                 elif event.key == pygame.K_f:
                     game.is_flipped = not game.is_flipped
                     game.deselect()
@@ -168,8 +181,7 @@ def main():
         #  cleared on mouseup. If released on same sq, selection is kept.)
 
         # ── Render ─────────────────────────────────────────────────────
-        renderer.render_frame(game, engine, result_btn)
-        clock.tick(60)
+        renderer.render_frame(game, engine, result_btn, show_time_modal)
 
 
 if __name__ == "__main__":

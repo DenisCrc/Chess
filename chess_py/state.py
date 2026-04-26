@@ -22,8 +22,15 @@ class GameState:
         self.last_move = None         # chess.Move | None
         self.captured = {chess.WHITE: [], chess.BLACK: []}
         self.legal_targets = set()    # to_squares for selected piece
-        self.game_over = None         # None | 'checkmate' | 'draw'
+        self.game_over = None         # None | 'checkmate' | 'draw' | 'timeout'
         self.pending_promotion = None # (from_sq, to_sq) | None
+        
+        # Timer state
+        self.initial_time = 600      # seconds
+        self.white_time = 600.0
+        self.black_time = 600.0
+        self.game_started = False
+        self.timer_active = False
 
     # ------------------------------------------------------------------
     def reset(self):
@@ -85,6 +92,7 @@ class GameState:
         move = chess.Move(from_sq, to_sq, promotion=piece_type)
         self._apply(move)
         self.pending_promotion = None
+        self.timer_active = True
 
     def _apply(self, move: chess.Move):
         # Track captured piece
@@ -111,6 +119,22 @@ class GameState:
               or self.board.is_seventyfive_moves()
               or self.board.is_fivefold_repetition()):
             self.game_over = 'draw'
+
+    def tick(self, dt: float):
+        """Update clocks. dt is seconds elapsed since last frame."""
+        if not self.timer_active or self.game_over:
+            return
+            
+        if self.board.turn == chess.WHITE:
+            self.white_time -= dt
+            if self.white_time <= 0:
+                self.white_time = 0
+                self.game_over = 'timeout'
+        else:
+            self.black_time -= dt
+            if self.black_time <= 0:
+                self.black_time = 0
+                self.game_over = 'timeout'
 
     # ------------------------------------------------------------------
     # Convenience

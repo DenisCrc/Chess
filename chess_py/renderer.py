@@ -369,6 +369,19 @@ class Renderer:
             pygame.draw.circle(self.screen, C["accent"],
                                (GAME_X + GAME_W - 22, y + PLAYER_BAR_H // 2), 5)
 
+        # Timer
+        time_val = game.white_time if color == chess.WHITE else game.black_time
+        m, s = int(time_val // 60), int(time_val % 60)
+        time_str = f"{m}:{s:02d}"
+        
+        timer_bg = C["btn_pri"] if active else C["panel_bg"]
+        if active and time_val <= 10:
+            timer_bg = C["status_err"]
+            
+        t_rect = pygame.Rect(GAME_X + GAME_W - 140, y + 10, 100, PLAYER_BAR_H - 20)
+        pygame.draw.rect(self.screen, timer_bg, t_rect, border_radius=6)
+        self._text(self.font_score, time_str, C["text"], center=t_rect.center)
+
     # ── turn indicator ─────────────────────────────────────────────────
     def draw_turn_indicator(self, game: GameState):
         if game.game_over:
@@ -485,6 +498,9 @@ class Renderer:
         if game.game_over == 'checkmate':
             winner = "Albul" if game.turn == chess.BLACK else "Negrul"
             title, sub, icon = "Șah-Mat!", f"{winner} câștigă!", "👑"
+        elif game.game_over == 'timeout':
+            winner = "Albul" if game.turn == chess.BLACK else "Negrul"
+            title, sub, icon = "Timp Expirat!", f"{winner} câștigă!", "⏰"
         else:
             title, sub, icon = "Pat!", "Jocul s-a terminat la egalitate.", "🤝"
 
@@ -502,9 +518,60 @@ class Renderer:
         on_new_game_rect_out.clear()
         on_new_game_rect_out.append(btn_rect)
 
+    # ── time selection modal ───────────────────────────────────────────
+    def draw_time_selection_modal(self, show: bool):
+        if not show:
+            return
+        overlay = pygame.Surface((WINDOW_W, WINDOW_H), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))
+        self.screen.blit(overlay, (0, 0))
+
+        box_w, box_h = 440, 320
+        bx = (WINDOW_W - box_w) // 2
+        by = (WINDOW_H - box_h) // 2
+        pygame.draw.rect(self.screen, C["modal_bg"], (bx, by, box_w, box_h), border_radius=16)
+        pygame.draw.rect(self.screen, C["modal_border"], (bx, by, box_w, box_h),
+                         width=2, border_radius=16)
+
+        self._text(self.font_title, "Alege Formatul de Timp", C["text"],
+                   center=(WINDOW_W // 2, by + 40))
+
+        formats = [
+            (60, "1 min", "Bullet"),
+            (180, "3 min", "Blitz"),
+            (300, "5 min", "Blitz"),
+            (600, "10 min", "Rapid"),
+        ]
+        
+        mouse = pygame.mouse.get_pos()
+        self._time_btn_rects = {}
+        
+        for i, (secs, label, sub) in enumerate(formats):
+            row, col = divmod(i, 2)
+            bw, bh = 180, 80
+            tx = bx + 30 + col * (bw + 20)
+            ty = by + 90 + row * (bh + 20)
+            rect = pygame.Rect(tx, ty, bw, bh)
+            
+            hover = rect.collidepoint(mouse)
+            bg = C["active_bar"] if hover else C["btn_sec"]
+            pygame.draw.rect(self.screen, bg, rect, border_radius=10)
+            pygame.draw.rect(self.screen, C["modal_border"], rect, width=1, border_radius=10)
+            
+            self._text(self.font_ui_lg, label, C["text"], center=(rect.centerx, rect.centery - 10))
+            self._text(self.font_ui_sm, sub, C["accent"], center=(rect.centerx, rect.centery + 15))
+            
+            self._time_btn_rects[secs] = rect
+
+    def get_time_format_at(self, pos):
+        for secs, rect in getattr(self, '_time_btn_rects', {}).items():
+            if rect.collidepoint(pos):
+                return secs
+        return None
+
     # ── full frame ─────────────────────────────────────────────────────
     def render_frame(self, game: GameState, engine,
-                     result_btn_out: list):
+                     result_btn_out: list, show_time_modal: bool = False):
         self.draw_background()
         self.draw_engine_panel(engine, game)
         self.draw_player_bars(game)
@@ -516,4 +583,5 @@ class Renderer:
         self.draw_buttons(game)
         self.draw_promotion_modal(game)
         self.draw_result_modal(game, result_btn_out)
+        self.draw_time_selection_modal(show_time_modal)
         pygame.display.flip()
