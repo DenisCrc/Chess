@@ -1,51 +1,61 @@
 <div align="center">
 
-# ♚ ChessGame
+# ChessGame
 
-**A beautifully crafted, fully interactive chess game built with vanilla HTML, CSS & JavaScript.**
+**A beautifully crafted, fully interactive chess game with both web and desktop versions.**
 
 ![Chess Game Screenshot](screenshot.png)
 
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
-[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-2.0+-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-[Features](#-features) · [Getting Started](#-getting-started) · [How to Play](#-how-to-play) · [Project Structure](#-project-structure) · [Contributing](#-contributing)
+[Features](#features) · [What's New](#whats-new) · [Getting Started](#getting-started) · [How to Play](#how-to-play) · [Project Structure](#project-structure) · [Contributing](#contributing)
 
 </div>
 
 ---
 
-##  Features
+## What's New
+
+- **Python Backend Migration**: The game logic and state management have been migrated to a Python Flask backend, ensuring robust rule enforcement via the python-chess library.
+- **Desktop Version**: A standalone desktop application built with Pygame is now included, offering a native experience with the same high-end aesthetics.
+- **Server-Side Engine Analysis**: Stockfish integration now runs on the server, providing faster and deeper analysis without taxing the user's browser.
+- **API-Driven Architecture**: The web frontend now communicates with a RESTful API for all game actions, analysis requests, and state synchronization.
+
+---
+
+## Features
 
 ### Complete Chess Rules
 - **Full piece movement** — all six piece types with correct move logic
 - **Castling** — both kingside and queenside, with all standard conditions enforced
 - **En Passant** — correctly implemented per FIDE rules
-- **Pawn Promotion** — interactive modal to choose Queen, Rook, Bishop, or Knight
-- **Check Detection** — real-time check highlighting with visual indicator on the king
-- **Checkmate & Stalemate** — automatic detection with result modal
-- **Stockfish Engine Analysis** — real-time evaluation and top 5 best move suggestions using Stockfish 10 (WASM)
+- **Pawn Promotion** — interactive selection for Queen, Rook, Bishop, or Knight
+- **Check Detection** — real-time check highlighting with visual indicators
+- **Checkmate & Stalemate** — automatic detection with detailed result reporting
+- **Stockfish Engine Analysis** — real-time evaluation and top 5 best move suggestions
 - **Drag and Drop** — move pieces intuitively by dragging or using the classic click-to-move method
 
 ### Polished UI/UX
--  **Dark luxury theme** — refined dark UI with glassmorphism and ambient glow effects
--  **Chess.com-inspired board** — classic green & cream color palette
--  **Rank & file labels** — algebraic notation displayed around the board
--  **Board flipping** — rotate the board 180° to play from either perspective
--  **Captured pieces tracker** — displays captured pieces for both players, sorted by value
--  **Move indicators** — valid move dots and capture rings shown on piece selection
--  **Last move highlight** — previous move squares are highlighted for context
--  **Smooth animations** — piece hover effects, modal transitions, and ambient pulse
--  **Fully responsive** — adapts beautifully to any screen size
+- **Dark luxury theme** — refined dark UI with glassmorphism and ambient glow effects
+- **Chess.com-inspired board** — classic green and cream color palette
+- **Rank and file labels** — algebraic notation displayed clearly around the board
+- **Board flipping** — rotate the board 180 degrees to play from either perspective
+- **Captured pieces tracker** — displays captured pieces for both players, sorted by value
+- **Move indicators** — valid move dots and capture rings shown on piece selection
+- **Last move highlight** — previous move squares are highlighted for context
+- **Smooth animations** — piece hover effects, modal transitions, and ambient pulse
+- **Fully responsive** — adapts seamlessly to any screen size (Web version)
 
 ---
 
-##  Getting Started
+## Getting Started
 
 ### Prerequisites
-All you need is a modern web browser — no build tools, frameworks, or dependencies required.
+- Python 3.8 or higher
+- A modern web browser (for the Web version)
 
 ### Installation
 
@@ -55,22 +65,29 @@ All you need is a modern web browser — no build tools, frameworks, or dependen
    cd ChessGame
    ```
 
-2. **Open in browser**
+2. **Install dependencies**
    ```bash
-   # Simply open main.html in your browser
-   start main.html        # Windows
-   open main.html         # macOS
-   xdg-open main.html     # Linux
+   pip install -r chess_py/requirements.txt
    ```
 
-   Or right-click `main.html` → **Open with** → your preferred browser.
+### Running the Game
 
-> [!TIP]
-> No server required! The game runs entirely client-side as a static HTML file.
+#### Web Version (Flask + JS)
+1. Start the backend server:
+   ```bash
+   python app.py
+   ```
+2. Open your browser and navigate to `http://localhost:5000`.
+
+#### Desktop Version (Pygame)
+1. Run the main script:
+   ```bash
+   python chess_py/main.py
+   ```
 
 ---
 
-##  How to Play
+## How to Play
 
 | Action | How |
 |---|---|
@@ -78,87 +95,75 @@ All you need is a modern web browser — no build tools, frameworks, or dependen
 | **See valid moves** | Dots appear on valid squares; rings appear on capturable pieces |
 | **Move a piece** | Drag the piece to the target square or click the destination |
 | **Deselect** | Click the selected piece again, or click an empty invalid square |
-| **Promote a pawn** | Move a pawn to the last rank — a modal lets you choose the new piece |
-| **Flip the board** | Click the **Rotește Tabla** button |
-| **New game** | Click the **Joc Nou** button |
+| **Promote a pawn** | Move a pawn to the last rank — a selection menu will appear |
+| **Flip the board** | Click the "Rotește Tabla" button or press "F" |
+| **New game** | Click the "Joc Nou" button or press "F5" |
 
 > [!NOTE]
 > The game enforces all legal move rules, including preventing moves that would leave your own king in check.
 
 ---
 
-##  Project Structure
+## Project Structure
 
 ```
 ChessGame/
-├── js/             # Modular JavaScript files
-│   ├── state.js    # Global state and constants
-│   ├── board.js    # Board rendering and updates
-│   ├── rules.js    # Chess logic and validation
-│   ├── ui.js       # Turn indicators and modals
-│   ├── moves.js    # Move execution and game actions
-│   ├── input.js    # Click and drag handlers
-│   └── engine.js   # Stockfish integration
-│   └── init.js    # Application bootstrap
-├── main.html       # Page structure, modals, and layout
-├── style.css       # Design tokens, board styling, animations, responsive rules
-├── screenshot.png  # Preview image
-└── README.md       # This file
+├── app.py              # Flask server and Web API
+├── main.html           # Web frontend structure
+├── style.css           # Design tokens and styling
+├── js/                 # Web logic (State, Board, Engine, Input)
+├── chess_py/           # Core Python logic and Desktop version
+│   ├── main.py         # Pygame entry point
+│   ├── state.py        # Game state management
+│   ├── engine.py       # Stockfish integration wrapper
+│   ├── renderer.py     # Pygame rendering engine
+│   └── requirements.txt # Python dependencies
+├── screenshot.png      # Preview image
+└── README.md           # Documentation
 ```
 
 ### Architecture Overview
 
-| File | Responsibility |
+| Component | Responsibility |
 |---|---|
-| **main.html** | Semantic HTML5 structure — header, chessboard grid, analysis panel, player bars, turn indicator, promotion & result modals |
-| **style.css** | CSS custom properties design system, two-column layout, dark UI theme, glassmorphism effects, animations, responsive breakpoints |
-| **js/** | Modular architecture — separate files for state management, chess rules, board rendering, move execution, input handling, and Stockfish engine integration |
+| **Flask API** | Handles move validation, state persistence, and communication with Stockfish. |
+| **Web Frontend** | Provides a modern, responsive interface using Vanilla JS and CSS Grid. |
+| **Pygame Desktop** | Offers a native desktop experience with identical logic and design. |
+| **Python-Chess** | Core rule engine ensuring 100% compliance with official chess rules. |
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Technology | Purpose |
 |---|---|
-| **HTML5** | Semantic page structure |
-| **CSS3** | Custom properties, Grid layout, animations, backdrop-filter, gradients |
-| **Vanilla JavaScript** | Modular game logic, DOM manipulation, event handling |
-| **Stockfish.js** | UCI chess engine compiled to WASM for browser-side analysis |
-| **Google Fonts** | [Inter](https://fonts.google.com/specimen/Inter) (UI) + [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) (labels) |
-| **Unicode Chess Symbols** | ♔♕♖♗♘♙ — no external image assets needed |
-
-**Zero dependencies.** No frameworks. No build step. Just clean, readable code.
+| **Python** | Backend API, desktop application, and core game logic |
+| **Flask** | Web server and RESTful API management |
+| **Pygame** | Desktop rendering and input handling |
+| **HTML5 & CSS3** | Semantic structure and advanced UI styling |
+| **Vanilla JavaScript** | Frontend interactivity and API communication |
+| **Stockfish** | Professional-grade chess engine for analysis |
+| **Python-Chess** | Comprehensive chess rule implementation |
 
 ---
 
-##  Contributing
+## Contributing
 
-Contributions are welcome! Here are some ideas:
+Contributions are welcome! If you have suggestions for improvements or new features, please open an issue or submit a pull request.
 
-- [x] Add move history / notation panel (PGN)
-- [x] Drag-and-drop piece movement
-- [x] AI opponent (Stockfish analysis)
+### Ideas for Future Development
 - [ ] Implement undo/redo functionality
 - [ ] Add a chess clock / timer
 - [ ] Sound effects for moves, captures, and check
-- [ ] FEN import/export
-- [ ] Multiplayer over WebSocket
-
-### Steps
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- [ ] FEN and PGN import/export
+- [ ] Multiplayer support over WebSockets
 
 ---
 
-
 <div align="center">
 
-**Built with ♟️ and ❤️**
+**Built with focus and dedication**
 
- Star this repo if you found it useful!
+Star this repository if you find it useful!
 
 </div>
