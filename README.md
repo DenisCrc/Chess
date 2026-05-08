@@ -2,16 +2,16 @@
 
 # ChessGame
 
-**A beautifully crafted, fully interactive chess game with both web and desktop versions.**
+**A beautifully crafted, fully interactive chess game with real-time multiplayer and professional engine analysis.**
 
 ![Chess Game Screenshot](screenshot.png)
 
 [![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.0+-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![Socket.io](https://img.shields.io/badge/Socket.io-4.0+-010101?style=for-the-badge&logo=socket.io&logoColor=white)](https://socket.io/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-[Features](#features) · [What's New](#whats-new) · [Getting Started](#getting-started) · [How to Play](#how-to-play) · [Project Structure](#project-structure) · [Contributing](#contributing)
+[Features](#features) · [What's New](#whats-new) · [Getting Started](#getting-started) · [How to Play](#how-to-play) · [Project Structure](#project-structure)
 
 </div>
 
@@ -19,35 +19,40 @@
 
 ## What's New
 
-- **Python Backend Migration**: The game logic and state management have been migrated to a Python Flask backend, ensuring robust rule enforcement via the python-chess library.
-- **Desktop Version**: A standalone desktop application built with Pygame is now included, offering a native experience with the same high-end aesthetics.
-- **Server-Side Engine Analysis**: Stockfish integration now runs on the server, providing faster and deeper analysis without taxing the user's browser.
-- **API-Driven Architecture**: The web frontend now communicates with a RESTful API for all game actions, analysis requests, and state synchronization.
+- **Real-Time Multiplayer**: Play against friends using a robust room-based system powered by **Flask-SocketIO**. Simply create a room and share the 4-digit code.
+- **Dual-Interface Architecture**: 
+    - **Lobby/Play**: A dedicated interface for competitive play with time controls and color selection.
+    - **Analysis Board**: A professional-grade analysis tool with move-by-move engine evaluation.
+- **Server-Side Stockfish Integration**: Professional engine analysis now runs on the backend, providing deep evaluation lines and move suggestions without impacting browser performance.
+- **Dynamic Time Controls**: Choose between Blitz (1m, 3m), Rapid (5m, 10m), or custom durations for multiplayer matches.
 
 ---
 
 ## Features
 
-### Complete Chess Rules
-- **Full piece movement** — all six piece types with correct move logic
-- **Castling** — both kingside and queenside, with all standard conditions enforced
-- **En Passant** — correctly implemented per FIDE rules
-- **Pawn Promotion** — interactive selection for Queen, Rook, Bishop, or Knight
-- **Check Detection** — real-time check highlighting with visual indicators
-- **Checkmate & Stalemate** — automatic detection with detailed result reporting
-- **Stockfish Engine Analysis** — real-time evaluation and top 5 best move suggestions
-- **Drag and Drop** — move pieces intuitively by dragging or using the classic click-to-move method
+### Multiplayer & Social
+- **Room System** — Create private rooms with unique alphanumeric codes.
+- **Live Matchmaking** — Join rooms instantly; the game starts as soon as both players are connected.
+- **Synchronized Timers** — Server-authoritative time tracking with visual "low time" warnings.
+- **Color Selection** — Play as White, Black, or choose a random assignment.
+- **Real-time Updates** — No page refreshes; moves, captures, and timer updates are pushed instantly via WebSockets.
 
-### Polished UI/UX
-- **Dark luxury theme** — refined dark UI with glassmorphism and ambient glow effects
-- **Chess.com-inspired board** — classic green and cream color palette
-- **Rank and file labels** — algebraic notation displayed clearly around the board
-- **Board flipping** — rotate the board 180 degrees to play from either perspective
-- **Captured pieces tracker** — displays captured pieces for both players, sorted by value
-- **Move indicators** — valid move dots and capture rings shown on piece selection
-- **Last move highlight** — previous move squares are highlighted for context
-- **Smooth animations** — piece hover effects, modal transitions, and ambient pulse
-- **Fully responsive** — adapts seamlessly to any screen size (Web version)
+### Professional Analysis
+- **Stockfish 16+ Integration** — Access world-class engine evaluations directly in the Analysis view.
+- **Top Move Suggestions** — View the top 5 engine-recommended moves with their corresponding centipawn evaluation.
+- **Move History (SAN)** — Full move history tracking in Standard Algebraic Notation.
+- **Interactive Evaluation** — Replay any move and see how the engine's perspective changes in real-time.
+
+### Core Chess Engine
+- **100% Rule Compliance** — Powered by `python-chess`, enforcing all rules including Castling, En Passant, and Pawn Promotion.
+- **Checkmate & Stalemate Detection** — Automatic game termination with descriptive result modals.
+- **Interactive Promotion** — Choose between Queen, Rook, Bishop, or Knight upon reaching the 8th rank.
+
+### Premium UI/UX
+- **Dark Luxury Theme** — A refined interface featuring glassmorphism, ambient glows, and high-contrast pieces.
+- **Responsive Design** — Play seamlessly on desktop, tablet, or mobile browsers.
+- **Drag & Drop** — Intuitive piece movement with ghost-image previews and valid move highlighting.
+- **Board Flipping** — Rotate the perspective 180° at any time.
 
 ---
 
@@ -55,7 +60,7 @@
 
 ### Prerequisites
 - Python 3.8 or higher
-- A modern web browser (for the Web version)
+- Stockfish Engine (Path configured in `app.py`)
 
 ### Installation
 
@@ -67,40 +72,22 @@
 
 2. **Install dependencies**
    ```bash
-   pip install -r chess_py/requirements.txt
+   pip install flask flask-cors flask-socketio python-chess
    ```
 
-### Running the Game
+3. **Configure Stockfish**
+   Update the `STOCKFISH_PATH` in `app.py` to point to your local Stockfish executable.
 
-#### Web Version (Flask + JS)
-1. Start the backend server:
+### Running the Application
+
+1. **Start the Flask server**
    ```bash
    python app.py
    ```
-2. Open your browser and navigate to `http://localhost:5000`.
-
-#### Desktop Version (Pygame)
-1. Run the main script:
-   ```bash
-   python chess_py/main.py
-   ```
-
----
-
-## How to Play
-
-| Action | How |
-|---|---|
-| **Select a piece** | Click on any piece or start dragging |
-| **See valid moves** | Dots appear on valid squares; rings appear on capturable pieces |
-| **Move a piece** | Drag the piece to the target square or click the destination |
-| **Deselect** | Click the selected piece again, or click an empty invalid square |
-| **Promote a pawn** | Move a pawn to the last rank — a selection menu will appear |
-| **Flip the board** | Click the "Rotește Tabla" button or press "F" |
-| **New game** | Click the "Joc Nou" button or press "F5" |
-
-> [!NOTE]
-> The game enforces all legal move rules, including preventing moves that would leave your own king in check.
+2. **Access the game**
+   - **Lobby/Play**: `http://localhost:5000/play`
+   - **Analysis**: `http://localhost:5000/analysis`
+   - **Main Hub**: `http://localhost:5000/`
 
 ---
 
@@ -108,28 +95,20 @@
 
 ```
 ChessGame/
-├── app.py              # Flask server and Web API
-├── main.html           # Web frontend structure
-├── style.css           # Design tokens and styling
-├── js/                 # Web logic (State, Board, Engine, Input)
-├── chess_py/           # Core Python logic and Desktop version
-│   ├── main.py         # Pygame entry point
-│   ├── state.py        # Game state management
-│   ├── engine.py       # Stockfish integration wrapper
-│   ├── renderer.py     # Pygame rendering engine
-│   └── requirements.txt # Python dependencies
-├── screenshot.png      # Preview image
-└── README.md           # Documentation
+├── app.py              # Flask server + SocketIO event handlers
+├── play.html           # Multiplayer/Lobby interface
+├── analysis.html       # Engine analysis interface
+├── main.html           # Landing page / Main hub
+├── style.css           # Global design system and component styles
+├── js/                 # Frontend Logic
+│   ├── lobby.js        # Multiplayer & SocketIO client logic
+│   ├── analysis_init.js # Analysis mode initialization
+│   ├── board.js        # Core board rendering
+│   └── state.js        # Client-side state management
+└── chess_py/           # Backend Core
+    ├── state.py        # Game state & rule enforcement
+    └── engine.py       # Stockfish integration wrapper
 ```
-
-### Architecture Overview
-
-| Component | Responsibility |
-|---|---|
-| **Flask API** | Handles move validation, state persistence, and communication with Stockfish. |
-| **Web Frontend** | Provides a modern, responsive interface using Vanilla JS and CSS Grid. |
-| **Pygame Desktop** | Offers a native desktop experience with identical logic and design. |
-| **Python-Chess** | Core rule engine ensuring 100% compliance with official chess rules. |
 
 ---
 
@@ -137,26 +116,21 @@ ChessGame/
 
 | Technology | Purpose |
 |---|---|
-| **Python** | Backend API, desktop application, and core game logic |
-| **Flask** | Web server and RESTful API management |
-| **Pygame** | Desktop rendering and input handling |
-| **HTML5 & CSS3** | Semantic structure and advanced UI styling |
-| **Vanilla JavaScript** | Frontend interactivity and API communication |
-| **Stockfish** | Professional-grade chess engine for analysis |
-| **Python-Chess** | Comprehensive chess rule implementation |
+| **Python / Flask** | Backend API and room management |
+| **Flask-SocketIO** | Real-time WebSocket communication |
+| **Python-Chess** | Core chess logic and move validation |
+| **Stockfish** | Professional engine evaluation |
+| **Vanilla JS** | Dynamic frontend components (no heavy frameworks) |
+| **CSS3** | Glassmorphism, animations, and responsive layout |
 
 ---
 
-## Contributing
+## Future Roadmap
 
-Contributions are welcome! If you have suggestions for improvements or new features, please open an issue or submit a pull request.
-
-### Ideas for Future Development
-- [ ] Implement undo/redo functionality
-- [ ] Add a chess clock / timer
-- [ ] Sound effects for moves, captures, and check
-- [ ] FEN and PGN import/export
-- [ ] Multiplayer support over WebSockets
+- [ ] **User Accounts**: Persist game history and ELO ratings.
+- [ ] **Global Lobby**: Public matchmaking for players without a room code.
+- [ ] **PGN/FEN Import**: Load external games for analysis.
+- [ ] **Custom Themes**: Selectable board colors and piece sets.
 
 ---
 
