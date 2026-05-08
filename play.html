@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joacă — ChessGame</title>
+    <meta name="description" content="Joacă șah online cu un prieten.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <!-- Ambient background glow -->
+        <div class="ambient-glow"></div>
+
+        <header class="app-header" id="app-header">
+            <div class="logo">
+                <a href="/" class="logo-link">
+                    <span class="logo-icon">♚</span>
+                    <span class="logo-text">ChessGame</span>
+                </a>
+            </div>
+            <span class="page-badge page-badge--play">Joacă</span>
+        </header>
+
+        <!-- ══════════ LOBBY VIEW ══════════ -->
+        <div class="lobby-view" id="lobby-view">
+            <div class="lobby-container">
+                <!-- Create Room -->
+                <div class="lobby-card" id="lobby-create">
+                    <h2 class="lobby-card-title">Creează Cameră</h2>
+                    <p class="lobby-card-desc">Alege formatul de timp și culoarea, apoi trimite codul prietenului tău.</p>
+
+                    <div class="lobby-section">
+                        <label class="lobby-label">Format Timp</label>
+                        <div class="lobby-time-options" id="lobby-time-options">
+                            <button class="lobby-time-btn" data-time="60" onclick="setLobbyTime(60)">
+                                <span class="lobby-time-val">1</span>
+                                <span class="lobby-time-unit">min</span>
+                                <span class="lobby-time-label">Bullet</span>
+                            </button>
+                            <button class="lobby-time-btn" data-time="180" onclick="setLobbyTime(180)">
+                                <span class="lobby-time-val">3</span>
+                                <span class="lobby-time-unit">min</span>
+                                <span class="lobby-time-label">Blitz</span>
+                            </button>
+                            <button class="lobby-time-btn active" data-time="300" onclick="setLobbyTime(300)">
+                                <span class="lobby-time-val">5</span>
+                                <span class="lobby-time-unit">min</span>
+                                <span class="lobby-time-label">Blitz</span>
+                            </button>
+                            <button class="lobby-time-btn" data-time="600" onclick="setLobbyTime(600)">
+                                <span class="lobby-time-val">10</span>
+                                <span class="lobby-time-unit">min</span>
+                                <span class="lobby-time-label">Rapid</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="lobby-section">
+                        <label class="lobby-label">Culoare</label>
+                        <div class="lobby-color-options" id="lobby-color-options">
+                            <button class="lobby-color-btn active" data-color="white" onclick="setLobbyColor('white')">
+                                <span class="color-piece">♔</span>
+                                <span>Alb</span>
+                            </button>
+                            <button class="lobby-color-btn" data-color="random" onclick="setLobbyColor('random')">
+                                <span class="color-piece">🎲</span>
+                                <span>Random</span>
+                            </button>
+                            <button class="lobby-color-btn" data-color="black" onclick="setLobbyColor('black')">
+                                <span class="color-piece">♚</span>
+                                <span>Negru</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="btn btn--primary btn--wide" id="create-room-btn" onclick="createRoom()">
+                        Creează Camera
+                    </button>
+                </div>
+
+                <!-- Join Room -->
+                <div class="lobby-card" id="lobby-join">
+                    <h2 class="lobby-card-title">Intră în Cameră</h2>
+                    <p class="lobby-card-desc">Introdu codul primit de la prietenul tău pentru a te alătura.</p>
+
+                    <div class="lobby-section">
+                        <label class="lobby-label">Cod Cameră</label>
+                        <input type="text" class="lobby-input" id="join-room-code" placeholder="Ex: A3X7"
+                            maxlength="4" autocomplete="off" spellcheck="false">
+                    </div>
+
+                    <button class="btn btn--primary btn--wide" id="join-room-btn" onclick="joinRoom()">
+                        Alătură-te
+                    </button>
+                    <div class="lobby-error" id="join-error"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ WAITING VIEW ══════════ -->
+        <div class="waiting-view hidden" id="waiting-view">
+            <div class="waiting-container">
+                <div class="waiting-icon">⏳</div>
+                <h2 class="waiting-title">Se așteaptă adversarul...</h2>
+                <p class="waiting-desc">Trimite acest cod prietenului tău:</p>
+                <div class="room-code-display" id="room-code-display">----</div>
+                <button class="btn btn--secondary" onclick="copyRoomCode()">Copiază Codul</button>
+                <p class="waiting-hint" id="copy-hint"></p>
+            </div>
+        </div>
+
+        <!-- ══════════ GAME VIEW ══════════ -->
+        <div class="game-view hidden" id="game-view">
+            <div class="main-layout" id="main-layout">
+                <main class="game-container" id="game-container">
+                    <!-- Player info — opponent (top) -->
+                    <div class="player-bar player-bar--top" id="player-top">
+                        <div class="player-avatar black-avatar">♚</div>
+                        <div class="player-info">
+                            <span class="player-name" id="player-top-name">Adversar</span>
+                            <span class="player-captures" id="top-captures"></span>
+                        </div>
+                        <div class="player-timer" id="timer-top">--:--</div>
+                    </div>
+
+                    <!-- Board wrapper with rank/file labels -->
+                    <div class="board-wrapper" id="board-wrapper">
+                        <div class="file-labels file-labels--top" id="file-labels-top">
+                            <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
+                        </div>
+                        <div class="board-with-ranks">
+                            <div class="rank-labels" id="rank-labels-left">
+                                <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+                            </div>
+                            <div id="chessboard"></div>
+                            <div class="rank-labels" id="rank-labels-right">
+                                <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+                            </div>
+                        </div>
+                        <div class="file-labels file-labels--bottom" id="file-labels-bottom">
+                            <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
+                        </div>
+                    </div>
+
+                    <!-- Player info — you (bottom) -->
+                    <div class="player-bar player-bar--bottom" id="player-bottom">
+                        <div class="player-avatar white-avatar">♔</div>
+                        <div class="player-info">
+                            <span class="player-name" id="player-bottom-name">Tu</span>
+                            <span class="player-captures" id="bottom-captures"></span>
+                        </div>
+                        <div class="player-timer" id="timer-bottom">--:--</div>
+                    </div>
+
+                    <!-- Turn indicator -->
+                    <div class="turn-indicator" id="turn-indicator">
+                        <span class="turn-dot"></span>
+                        <span class="turn-text">Rândul Albului</span>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="controls">
+                        <button class="btn btn--secondary btn--danger" id="resign-btn" onclick="resignGame()">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                                <line x1="4" y1="22" x2="4" y2="15"></line>
+                            </svg>
+                            Abandonează
+                        </button>
+                    </div>
+                </main>
+
+                <!-- Right Column — Move History -->
+                <div class="right-column">
+                    <aside class="move-history-panel" id="move-history-panel">
+                        <div class="move-history-header">
+                            <span class="move-history-icon">📋</span>
+                            <span>Istoric Mutări</span>
+                        </div>
+                        <div class="move-history-body" id="move-history-body">
+                            <div class="move-history-empty">Nicio mutare încă.</div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+
+        <!-- Promotion modal -->
+        <div class="modal-overlay" id="promotion-modal">
+            <div class="modal">
+                <h3 class="modal-title">Alege Promovarea</h3>
+                <div class="promotion-choices" id="promotion-choices"></div>
+            </div>
+        </div>
+
+        <!-- Game over modal -->
+        <div class="modal-overlay" id="result-modal">
+            <div class="modal modal--result">
+                <div class="result-icon" id="result-icon">♛</div>
+                <h3 class="modal-title" id="result-title">Șah-Mat!</h3>
+                <p class="result-subtitle" id="result-subtitle"></p>
+                <a href="/play" class="btn btn--primary btn--wide">Joc Nou</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/lobby.js"></script>
+</body>
+
+</html>

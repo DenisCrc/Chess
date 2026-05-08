@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analiză — ChessGame</title>
+    <meta name="description" content="Analizează partide de șah cu motorul Stockfish.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <!-- Ambient background glow -->
+        <div class="ambient-glow"></div>
+
+        <header class="app-header" id="app-header">
+            <div class="logo">
+                <a href="/" class="logo-link">
+                    <span class="logo-icon">♚</span>
+                    <span class="logo-text">ChessGame</span>
+                </a>
+            </div>
+            <span class="page-badge">Analiză</span>
+        </header>
+
+        <div class="main-layout" id="main-layout">
+            <main class="game-container" id="game-container">
+                <!-- Player info — Black (top) -->
+                <div class="player-bar player-bar--top" id="player-top">
+                    <div class="player-avatar black-avatar">♚</div>
+                    <div class="player-info">
+                        <span class="player-name">Negru</span>
+                        <span class="player-captures" id="black-captures"></span>
+                    </div>
+                </div>
+
+                <!-- Board wrapper with rank/file labels -->
+                <div class="board-wrapper" id="board-wrapper">
+                    <div class="file-labels file-labels--top" id="file-labels-top">
+                        <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
+                    </div>
+                    <div class="board-with-ranks">
+                        <div class="rank-labels" id="rank-labels-left">
+                            <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+                        </div>
+                        <div id="chessboard"></div>
+                        <div class="rank-labels" id="rank-labels-right">
+                            <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+                        </div>
+                    </div>
+                    <div class="file-labels file-labels--bottom" id="file-labels-bottom">
+                        <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
+                    </div>
+                </div>
+
+                <!-- Player info — White (bottom) -->
+                <div class="player-bar player-bar--bottom" id="player-bottom">
+                    <div class="player-avatar white-avatar">♔</div>
+                    <div class="player-info">
+                        <span class="player-name">Alb</span>
+                        <span class="player-captures" id="white-captures"></span>
+                    </div>
+                </div>
+
+                <!-- Turn indicator -->
+                <div class="turn-indicator" id="turn-indicator">
+                    <span class="turn-dot"></span>
+                    <span class="turn-text">Rândul Albului</span>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls">
+                    <button class="btn btn--primary" id="flip-btn" onclick="flipBoard()">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <polyline points="23 20 23 14 17 14"></polyline>
+                            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                        </svg>
+                        Rotește Tabla
+                    </button>
+                    <button class="btn btn--secondary" id="reset-btn" onclick="resetGame()">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                            <path d="M3 3v5h5"></path>
+                        </svg>
+                        Resetează
+                    </button>
+                </div>
+            </main>
+
+            <!-- Right Column — Engine + Move History -->
+            <div class="right-column">
+                <!-- Engine Analysis Panel -->
+                <aside class="engine-panel" id="engine-panel">
+                    <div class="engine-header">
+                        <div class="engine-title-row">
+                            <div class="engine-title">
+                                <span class="engine-icon">⚡</span>
+                                <span>Analiză Motor</span>
+                            </div>
+                            <div class="engine-status" id="engine-status">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Se încarcă...</span>
+                            </div>
+                        </div>
+                        <div class="engine-depth" id="engine-depth">Adâncime: —</div>
+                    </div>
+                    <div class="engine-lines" id="engine-lines">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </aside>
+
+                <!-- Move History Panel -->
+                <aside class="move-history-panel" id="move-history-panel">
+                    <div class="move-history-header">
+                        <span class="move-history-icon">📋</span>
+                        <span>Istoric Mutări</span>
+                    </div>
+                    <div class="move-history-body" id="move-history-body">
+                        <div class="move-history-empty">Nicio mutare încă.</div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- Promotion modal -->
+        <div class="modal-overlay" id="promotion-modal">
+            <div class="modal">
+                <h3 class="modal-title">Alege Promovarea</h3>
+                <div class="promotion-choices" id="promotion-choices"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/state.js"></script>
+    <script src="js/rules.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/moves.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/analysis_init.js"></script>
+</body>
+
+</html>

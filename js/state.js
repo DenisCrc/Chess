@@ -1,5 +1,5 @@
 // ============================================================
-// STATE — Global game state and constants
+// STATE — Global game state and constants (Analysis mode)
 // ============================================================
 let gameState = Array(8).fill(null).map(() => Array(8).fill(''));
 
@@ -12,8 +12,8 @@ const pieceValues = { 'p': 1, 'n': 3, 'b': 3, 'r': 5, 'q': 9, 'k': 0 };
 
 const board = document.getElementById('chessboard');
 const turnIndicator = document.getElementById('turn-indicator');
-const turnDot = turnIndicator.querySelector('.turn-dot');
-const turnText = turnIndicator.querySelector('.turn-text');
+const turnDot = turnIndicator ? turnIndicator.querySelector('.turn-dot') : null;
+const turnText = turnIndicator ? turnIndicator.querySelector('.turn-text') : null;
 
 let currentTurn = 'white';
 let selectedSquare = null;
@@ -26,13 +26,6 @@ let castlingRights = {
     black: { kingSide: true, queenSide: true }
 };
 
-// --- Timer State ---
-let initialTime = 600; // default 10 min
-let whiteTime = 600;
-let blackTime = 600;
-let timerInterval = null;
-let isTimerActive = false;
-let gameStarted = false;
 let moveHistory = [];
 
 // --- FEN to Internal State ---
@@ -76,7 +69,7 @@ function syncStateFromBackend(data) {
         const from = data.last_move.substring(0, 2);
         const to = data.last_move.substring(2, 4);
         lastMove = {
-            piece: '?', // we don't strictly need this for highlighting
+            piece: '?',
             fromRow: 8 - parseInt(from[1]),
             fromCol: from.charCodeAt(0) - 97,
             toRow: 8 - parseInt(to[1]),
@@ -92,14 +85,6 @@ function syncStateFromBackend(data) {
 
     renderPieces();
     updateUI();
-    
-    if (gameOverStatus) {
-        showResultModal(
-            gameOverStatus === 'checkmate' ? 'Șah-Mat!' : 'Remiză!',
-            gameOverStatus === 'checkmate' ? (currentTurn === 'white' ? 'Negrul câștigă!' : 'Albul câștigă!') : 'Jocul s-a terminat la egalitate.',
-            gameOverStatus === 'checkmate' ? '👑' : '🤝'
-        );
-    }
 }
 
 function renderMoveHistory() {
@@ -129,20 +114,22 @@ function renderMoveHistory() {
         body.appendChild(row);
     }
 
-    // Auto-scroll to latest move
     body.scrollTop = body.scrollHeight;
 }
 
 function updateUI() {
+    if (!turnIndicator) return;
     // Update turn indicator
     turnIndicator.className = 'turn-indicator turn--' + currentTurn;
     turnIndicator.classList.toggle('turn--white', currentTurn === 'white');
     turnIndicator.classList.toggle('turn--black', currentTurn === 'black');
-    turnText.textContent = currentTurn === 'white' ? 'Rândul Albului' : 'Rândul Negrului';
+    if (turnText) turnText.textContent = currentTurn === 'white' ? 'Rândul Albului' : 'Rândul Negrului';
     
     // Update captures
-    document.getElementById('white-captures').innerHTML = capturedPieces.white.map(p => `<span>${pieceSymbols[p] || p}</span>`).join('');
-    document.getElementById('black-captures').innerHTML = capturedPieces.black.map(p => `<span>${pieceSymbols[p] || p}</span>`).join('');
+    const wCap = document.getElementById('white-captures');
+    const bCap = document.getElementById('black-captures');
+    if (wCap) wCap.innerHTML = capturedPieces.white.map(p => `<span>${pieceSymbols[p] || p}</span>`).join('');
+    if (bCap) bCap.innerHTML = capturedPieces.black.map(p => `<span>${pieceSymbols[p] || p}</span>`).join('');
 
     updatePlayerBars();
 }

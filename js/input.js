@@ -1,5 +1,5 @@
 // ============================================================
-// CLICK HANDLER
+// CLICK HANDLER (Analysis — both colors playable)
 // ============================================================
 board.addEventListener('click', async function (event) {
     if (isDragging) return;
@@ -41,7 +41,7 @@ board.addEventListener('click', async function (event) {
 });
 
 // ============================================================
-// DRAG AND DROP
+// DRAG AND DROP (Analysis)
 // ============================================================
 let isDragging = false;
 let dragFrom = null;

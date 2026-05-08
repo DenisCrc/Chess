@@ -1,18 +1,20 @@
 // ============================================================
-// UI UPDATES — Turn indicator, player bars, modals
+// UI UPDATES — Turn indicator, player bars, modals (Analysis)
 // ============================================================
 function updateTurnIndicator() {
+    if (!turnText || !turnDot) return;
     turnText.textContent = currentTurn === 'white' ? 'Rândul Albului' : 'Rândul Negrului';
     turnDot.classList.toggle('black-turn', currentTurn === 'black');
 
     const inCheck = isKingInCheck(currentTurn);
-    turnIndicator.classList.toggle('in-check-indicator', inCheck);
-    if (inCheck) turnText.textContent += ' — ȘAH!';
+    if (turnIndicator) turnIndicator.classList.toggle('in-check-indicator', inCheck);
+    if (inCheck && turnText) turnText.textContent += ' — ȘAH!';
 }
 
 function updatePlayerBars() {
     const topBar = document.getElementById('player-top');
     const bottomBar = document.getElementById('player-bottom');
+    if (!topBar || !bottomBar) return;
 
     topBar.classList.toggle('active-player',
         (isFlipped ? 'white' : 'black') === currentTurn);
@@ -43,7 +45,7 @@ function updatePlayerBars() {
 }
 
 // ============================================================
-// PROMOTION MODAL
+// PROMOTION MODAL (Analysis)
 // ============================================================
 let pendingPromotion = null;
 
@@ -68,99 +70,10 @@ async function completePromotion(chosenPiece) {
     const { fromRow, fromCol, toRow, toCol } = pendingPromotion;
     const promoChar = chosenPiece.toLowerCase();
 
-    // Call executeMove with promotion
     const result = await executeMove(fromRow, fromCol, toRow, toCol, promoChar);
     
     if (result === true) {
         document.getElementById('promotion-modal').classList.remove('visible');
         pendingPromotion = null;
     }
-}
-
-// ============================================================
-// RESULT MODAL
-// ============================================================
-function showResultModal(title, subtitle, icon) {
-    stopTimer();
-    document.getElementById('result-icon').textContent = icon || '♛';
-    document.getElementById('result-title').textContent = title;
-    document.getElementById('result-subtitle').textContent = subtitle;
-    document.getElementById('result-modal').classList.add('visible');
-}
-
-// ============================================================
-// TIME SELECTION & CLOCK
-// ============================================================
-function selectTimeFormat(seconds) {
-    initialTime = seconds;
-    whiteTime = seconds;
-    blackTime = seconds;
-    gameStarted = false;
-    isTimerActive = false;
-    stopTimer();
-    
-    updateTimerDisplay('white', whiteTime);
-    updateTimerDisplay('black', blackTime);
-    highlightActiveTimeOption(seconds);
-    
-    resetGame(); // calls API to reset board
-}
-
-function highlightActiveTimeOption(seconds) {
-    document.querySelectorAll('.time-option').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    const activeBtn = document.getElementById('time-opt-' + seconds);
-    if (activeBtn) activeBtn.classList.add('active');
-}
-
-function formatTime(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
-}
-
-function updateTimerDisplay(color, seconds) {
-    const el = document.getElementById(`${color}-timer`);
-    if (el) {
-        el.textContent = formatTime(seconds);
-        el.classList.toggle('low-time', seconds <= 10);
-    }
-}
-
-function startTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    isTimerActive = true;
-    timerInterval = setInterval(() => {
-        if (!isTimerActive || gameOverStatus) return;
-
-        if (currentTurn === 'white') {
-            whiteTime--;
-            updateTimerDisplay('white', whiteTime);
-            if (whiteTime <= 0) handleTimeout('white');
-        } else {
-            blackTime--;
-            updateTimerDisplay('black', blackTime);
-            if (blackTime <= 0) handleTimeout('black');
-        }
-    }, 1000);
-}
-
-function stopTimer() {
-    isTimerActive = false;
-    if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-    }
-}
-
-function handleTimeout(color) {
-    stopTimer();
-    const winner = color === 'white' ? 'Negrul' : 'Albul';
-    showResultModal('Timp Expirat!', `${winner} câștigă prin timp.`, '⏰');
-}
-
-function resetGameData() {
-    stopTimer();
-    gameStarted = false;
 }

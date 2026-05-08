@@ -1,5 +1,5 @@
 // ============================================================
-// GAME ACTIONS — Flip, reset, selection, end conditions
+// GAME ACTIONS — Flip, reset, selection (Analysis mode)
 // ============================================================
 function flipBoard() {
     isFlipped = !isFlipped;
@@ -13,8 +13,6 @@ async function resetGame() {
         const response = await fetch('/api/reset', { method: 'POST' });
         const data = await response.json();
         syncStateFromBackend(data);
-        document.getElementById('result-modal').classList.remove('visible');
-        document.getElementById('promotion-modal').classList.remove('visible');
         clearSelection();
     } catch (err) {
         console.error('Failed to reset game:', err);
@@ -22,7 +20,6 @@ async function resetGame() {
 }
 
 function clearSelection() {
-    // Clear highlights
     document.querySelectorAll('.last-move, .in-check, .valid-move, .valid-capture, .dragging-source, .drag-over').forEach(el => {
         el.classList.remove('last-move', 'in-check', 'valid-move', 'valid-capture', 'dragging-source', 'drag-over');
     });
@@ -34,7 +31,7 @@ function clearSelection() {
 }
 
 // ============================================================
-// SHARED MOVE EXECUTION
+// SHARED MOVE EXECUTION (Analysis — both colors playable)
 // ============================================================
 async function executeMove(fromRow, fromCol, toRow, toCol, promotion = null) {
     const fromSq = String.fromCharCode(97 + fromCol) + (8 - fromRow);
@@ -61,13 +58,6 @@ async function executeMove(fromRow, fromCol, toRow, toCol, promotion = null) {
         }
 
         syncStateFromBackend(data);
-        
-        // Start timer on first move
-        if (!gameStarted) {
-            gameStarted = true;
-            startTimer();
-        }
-
         clearSelection();
         return true;
     } catch (err) {
