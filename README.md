@@ -4,7 +4,6 @@
 
 **A beautifully crafted, fully interactive chess game with real-time multiplayer and professional engine analysis.**
 
-![Chess Game Screenshot](screenshot.png)
 
 [![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.0+-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
