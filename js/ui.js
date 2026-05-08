@@ -91,14 +91,6 @@ function showResultModal(title, subtitle, icon) {
 // ============================================================
 // TIME SELECTION & CLOCK
 // ============================================================
-function showTimeFormatModal() {
-    // Hide result modal if open
-    document.getElementById('result-modal').classList.remove('visible');
-    // Reset state before choosing time
-    resetGameData();
-    document.getElementById('time-format-modal').classList.add('visible');
-}
-
 function selectTimeFormat(seconds) {
     initialTime = seconds;
     whiteTime = seconds;
@@ -109,9 +101,17 @@ function selectTimeFormat(seconds) {
     
     updateTimerDisplay('white', whiteTime);
     updateTimerDisplay('black', blackTime);
+    highlightActiveTimeOption(seconds);
     
-    document.getElementById('time-format-modal').classList.remove('visible');
     resetGame(); // calls API to reset board
+}
+
+function highlightActiveTimeOption(seconds) {
+    document.querySelectorAll('.time-option').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    const activeBtn = document.getElementById('time-opt-' + seconds);
+    if (activeBtn) activeBtn.classList.add('active');
 }
 
 function formatTime(seconds) {

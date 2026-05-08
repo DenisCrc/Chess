@@ -33,6 +33,7 @@ let blackTime = 600;
 let timerInterval = null;
 let isTimerActive = false;
 let gameStarted = false;
+let moveHistory = [];
 
 // --- FEN to Internal State ---
 function syncStateFromBackend(data) {
@@ -85,6 +86,10 @@ function syncStateFromBackend(data) {
         lastMove = null;
     }
 
+    // Sync move history
+    moveHistory = data.move_history || [];
+    renderMoveHistory();
+
     renderPieces();
     updateUI();
     
@@ -95,6 +100,37 @@ function syncStateFromBackend(data) {
             gameOverStatus === 'checkmate' ? '👑' : '🤝'
         );
     }
+}
+
+function renderMoveHistory() {
+    const body = document.getElementById('move-history-body');
+    if (!body) return;
+
+    if (moveHistory.length === 0) {
+        body.innerHTML = '<div class="move-history-empty">Nicio mutare încă.</div>';
+        return;
+    }
+
+    body.innerHTML = '';
+    const totalPairs = Math.ceil(moveHistory.length / 2);
+
+    for (let i = 0; i < totalPairs; i++) {
+        const moveNum = i + 1;
+        const whiteMove = moveHistory[i * 2] || '';
+        const blackMove = moveHistory[i * 2 + 1] || '';
+        const isLatest = (i === totalPairs - 1);
+
+        const row = document.createElement('div');
+        row.className = 'move-row' + (isLatest ? ' move-row--latest' : '');
+        row.innerHTML =
+            '<span class="move-number">' + moveNum + '.</span>' +
+            '<span class="move-white">' + whiteMove + '</span>' +
+            '<span class="move-black">' + blackMove + '</span>';
+        body.appendChild(row);
+    }
+
+    // Auto-scroll to latest move
+    body.scrollTop = body.scrollHeight;
 }
 
 function updateUI() {

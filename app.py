@@ -46,6 +46,13 @@ def send_css():
 
 @app.route('/api/state', methods=['GET'])
 def get_state():
+    # Build SAN move history
+    move_history = []
+    temp_board = chess.Board()
+    for move in game.board.move_stack:
+        move_history.append(temp_board.san(move))
+        temp_board.push(move)
+
     return jsonify({
         'fen': game.board.fen(),
         'turn': 'white' if game.board.turn == chess.WHITE else 'black',
@@ -56,6 +63,7 @@ def get_state():
             'black': [p.symbol() for p in game.captured[chess.BLACK]],
         },
         'is_check': game.board.is_check(),
+        'move_history': move_history,
     })
 
 @app.route('/api/move', methods=['POST'])

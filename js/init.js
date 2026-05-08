@@ -14,7 +14,11 @@ async function initApp() {
     }
     
     initEngine();
-    showTimeFormatModal();
+
+    // Set default time format and highlight it
+    updateTimerDisplay('white', whiteTime);
+    updateTimerDisplay('black', blackTime);
+    highlightActiveTimeOption(initialTime);
 }
 
 initApp();

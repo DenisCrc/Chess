@@ -28,6 +28,36 @@
         </header>
 
         <div class="main-layout" id="main-layout">
+            <!-- Left Panel — Time Format Selection -->
+            <aside class="time-panel" id="time-panel">
+                <div class="time-panel-header">
+                    <span class="time-panel-icon">⏱</span>
+                    <span>Format Timp</span>
+                </div>
+                <div class="time-panel-options">
+                    <button class="time-option" id="time-opt-60" onclick="selectTimeFormat(60)">
+                        <span class="time-option-val">1</span>
+                        <span class="time-option-unit">min</span>
+                        <span class="time-option-label">Bullet</span>
+                    </button>
+                    <button class="time-option" id="time-opt-180" onclick="selectTimeFormat(180)">
+                        <span class="time-option-val">3</span>
+                        <span class="time-option-unit">min</span>
+                        <span class="time-option-label">Blitz</span>
+                    </button>
+                    <button class="time-option" id="time-opt-300" onclick="selectTimeFormat(300)">
+                        <span class="time-option-val">5</span>
+                        <span class="time-option-unit">min</span>
+                        <span class="time-option-label">Blitz</span>
+                    </button>
+                    <button class="time-option" id="time-opt-600" onclick="selectTimeFormat(600)">
+                        <span class="time-option-val">10</span>
+                        <span class="time-option-unit">min</span>
+                        <span class="time-option-label">Rapid</span>
+                    </button>
+                </div>
+            </aside>
+
             <main class="game-container" id="game-container">
                 <!-- Player info — opponent (top) -->
                 <div class="player-bar player-bar--top" id="player-top">
@@ -85,7 +115,7 @@
                         </svg>
                         Rotește Tabla
                     </button>
-                    <button class="btn btn--secondary" id="reset-btn" onclick="showTimeFormatModal()">
+                    <button class="btn btn--secondary" id="reset-btn" onclick="selectTimeFormat(initialTime)">
                         <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
@@ -96,25 +126,39 @@
                 </div>
             </main>
 
-            <!-- Engine Analysis Panel -->
-            <aside class="engine-panel" id="engine-panel">
-                <div class="engine-header">
-                    <div class="engine-title-row">
-                        <div class="engine-title">
-                            <span class="engine-icon">⚡</span>
-                            <span>Analiză Motor</span>
+            <!-- Right Column — Engine + Move History -->
+            <div class="right-column">
+                <!-- Engine Analysis Panel -->
+                <aside class="engine-panel" id="engine-panel">
+                    <div class="engine-header">
+                        <div class="engine-title-row">
+                            <div class="engine-title">
+                                <span class="engine-icon">⚡</span>
+                                <span>Analiză Motor</span>
+                            </div>
+                            <div class="engine-status" id="engine-status">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Se încarcă...</span>
+                            </div>
                         </div>
-                        <div class="engine-status" id="engine-status">
-                            <span class="status-dot"></span>
-                            <span class="status-text">Se încarcă...</span>
-                        </div>
+                        <div class="engine-depth" id="engine-depth">Adâncime: —</div>
                     </div>
-                    <div class="engine-depth" id="engine-depth">Adâncime: —</div>
-                </div>
-                <div class="engine-lines" id="engine-lines">
-                    <!-- Populated by JavaScript -->
-                </div>
-            </aside>
+                    <div class="engine-lines" id="engine-lines">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </aside>
+
+                <!-- Move History Panel -->
+                <aside class="move-history-panel" id="move-history-panel">
+                    <div class="move-history-header">
+                        <span class="move-history-icon">📋</span>
+                        <span>Istoric Mutări</span>
+                    </div>
+                    <div class="move-history-body" id="move-history-body">
+                        <div class="move-history-empty">Nicio mutare încă.</div>
+                    </div>
+                </aside>
+            </div>
         </div>
 
         <!-- Promotion modal -->
@@ -131,38 +175,11 @@
                 <div class="result-icon" id="result-icon">♛</div>
                 <h3 class="modal-title" id="result-title">Șah-Mat!</h3>
                 <p class="result-subtitle" id="result-subtitle"></p>
-                <button class="btn btn--primary btn--wide" onclick="showTimeFormatModal()">Joc Nou</button>
+                <button class="btn btn--primary btn--wide" onclick="selectTimeFormat(initialTime)">Joc Nou</button>
             </div>
         </div>
 
-        <!-- Time format selection modal -->
-        <div class="modal-overlay" id="time-format-modal">
-            <div class="modal">
-                <h3 class="modal-title">Alege Formatul de Timp</h3>
-                <div class="time-format-grid">
-                    <button class="time-btn" onclick="selectTimeFormat(60)">
-                        <span class="time-val">1</span>
-                        <span class="time-unit">min</span>
-                        <span class="time-label">Bullet</span>
-                    </button>
-                    <button class="time-btn" onclick="selectTimeFormat(180)">
-                        <span class="time-val">3</span>
-                        <span class="time-unit">min</span>
-                        <span class="time-label">Blitz</span>
-                    </button>
-                    <button class="time-btn" onclick="selectTimeFormat(300)">
-                        <span class="time-val">5</span>
-                        <span class="time-unit">min</span>
-                        <span class="time-label">Blitz</span>
-                    </button>
-                    <button class="time-btn" onclick="selectTimeFormat(600)">
-                        <span class="time-val">10</span>
-                        <span class="time-unit">min</span>
-                        <span class="time-label">Rapid</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+
     </div>
 
     <script src="js/state.js"></script>
