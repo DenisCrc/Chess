@@ -1,9 +1,8 @@
 // ============================================================
-// CLICK HANDLER (Analysis — both colors playable)
+// CLICK HANDLER (Analysis — always interactive; moves branch from current node)
 // ============================================================
 board.addEventListener('click', async function (event) {
     if (isDragging) return;
-    if (isViewingHistory()) return; // block interaction when browsing history
     const target = event.target.closest('.square');
     if (!target) return;
 
@@ -48,7 +47,6 @@ let isDragging = false;
 let dragFrom = null;
 
 board.addEventListener('dragstart', function (event) {
-    if (isViewingHistory()) { event.preventDefault(); return; } // block when browsing history
     const square = event.target.closest('.square');
     if (!square) { event.preventDefault(); return; }
 
@@ -127,10 +125,9 @@ board.addEventListener('dragend', function (event) {
 });
 
 // ============================================================
-// KEYBOARD NAVIGATION (Arrow keys for history playback)
+// KEYBOARD NAVIGATION (Arrow keys for tree playback)
 // ============================================================
 document.addEventListener('keydown', function (event) {
-    // Only on analysis page
     if (typeof navigatePrev === 'undefined') return;
 
     switch (event.key) {

@@ -10,9 +10,9 @@ function flipBoard() {
 
 async function resetGame() {
     try {
-        const response = await fetch('/api/reset', { method: 'POST' });
+        const response = await fetch('/api/tree/reset', { method: 'POST' });
         const data = await response.json();
-        syncStateFromBackend(data);
+        syncFromTree(data);
         clearSelection();
     } catch (err) {
         console.error('Failed to reset game:', err);
@@ -31,17 +31,22 @@ function clearSelection() {
 }
 
 // ============================================================
-// SHARED MOVE EXECUTION (Analysis — both colors playable)
+// SHARED MOVE EXECUTION (Analysis — branches from current node)
 // ============================================================
 async function executeMove(fromRow, fromCol, toRow, toCol, promotion = null) {
     const fromSq = String.fromCharCode(97 + fromCol) + (8 - fromRow);
-    const toSq = String.fromCharCode(97 + toCol) + (8 - toRow);
+    const toSq   = String.fromCharCode(97 + toCol)   + (8 - toRow);
 
     try {
-        const response = await fetch('/api/move', {
+        const response = await fetch('/api/tree/move', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ from: fromSq, to: toSq, promotion: promotion })
+            body: JSON.stringify({
+                from: fromSq,
+                to: toSq,
+                promotion: promotion,
+                node_id: currentNodeId    // branch from the currently displayed node
+            })
         });
 
         const data = await response.json();
@@ -57,7 +62,7 @@ async function executeMove(fromRow, fromCol, toRow, toCol, promotion = null) {
             return false;
         }
 
-        syncStateFromBackend(data);
+        syncFromTree(data);
         clearSelection();
         return true;
     } catch (err) {

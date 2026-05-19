@@ -1231,6 +1231,69 @@ body {
     background: var(--accent-hover);
 }
 
+/* ============================================================
+   BRANCH / TREE MOVE RENDERING
+   ============================================================ */
+
+/* Container for an alternative branch entry */
+.branch-block {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 2px 6px 2px 4px;
+    margin: 1px 0;
+    border-left: 2px solid rgba(124, 92, 191, 0.2);
+    border-radius: 0 4px 4px 0;
+}
+
+.branch-block:hover {
+    border-left-color: rgba(124, 92, 191, 0.5);
+    background: rgba(124, 92, 191, 0.04);
+}
+
+/* The └ connector glyph */
+.branch-connector {
+    font-size: 11px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    line-height: 1;
+    margin-right: 2px;
+    user-select: none;
+}
+
+/* Move number label inside a branch ("3." or "3…") */
+.branch-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+/* Alternative move — slightly dimmer than main line */
+.move--branch {
+    color: var(--text-secondary) !important;
+    font-size: 12px !important;
+}
+
+.move--branch:hover {
+    color: var(--text-primary) !important;
+    background: rgba(124, 92, 191, 0.12);
+}
+
+.move--branch.move--active {
+    color: #fff !important;
+}
+
+/* Empty white-move placeholder (when branch starts on black's turn) */
+.move-placeholder {
+    cursor: default !important;
+    pointer-events: none;
+}
+
+.move-placeholder:hover {
+    background: transparent !important;
+}
 
 /* ============================================================
    RESPONSIVE

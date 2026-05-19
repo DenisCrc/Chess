@@ -5,16 +5,16 @@ const PAGE_MODE = 'analysis';
 
 async function initApp() {
     createBoard();
-    
-    // Initial state fetch
+
+    // Fetch the full analysis tree on load
     try {
-        const response = await fetch('/api/state');
+        const response = await fetch('/api/tree');
         const data = await response.json();
-        syncStateFromBackend(data);
+        syncFromTree(data);
     } catch (err) {
-        console.error('Initial state fetch failed:', err);
+        console.error('Initial tree fetch failed:', err);
     }
-    
+
     initEngine();
 }
 

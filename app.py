@@ -14,6 +14,7 @@ sys.path.append(os.path.join(os.getcwd(), 'chess_py'))
 
 from state import GameState
 from engine import StockfishEngine
+from analysis_tree import AnalysisTree, PromotionRequired
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app)
@@ -23,8 +24,8 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 STOCKFISH_PATH = r"C:\\Users\\mvcra\\Downloads\\stockfish-windows-x86-64-avx2\\stockfish\\stockfish.exe"
 
 # ── Global State ──────────────────────────────────────────────────────
-# Analysis mode — single shared board for engine analysis
-analysis_game = GameState()
+# Analysis mode — branching move tree
+analysis_tree = AnalysisTree()
 engine = StockfishEngine(STOCKFISH_PATH)
 
 # Play mode — room-based multiplayer
@@ -145,122 +146,70 @@ def send_css():
 
 
 # ══════════════════════════════════════════════════════════════════════
-# ANALYSIS REST API (unchanged, for analysis.html)
+# ANALYSIS REST API — Branching tree
 # ══════════════════════════════════════════════════════════════════════
 
-@app.route('/api/state', methods=['GET'])
-def get_analysis_state():
-    return jsonify({
-        'fen': analysis_game.board.fen(),
-        'turn': 'white' if analysis_game.board.turn == chess.WHITE else 'black',
-        'game_over': analysis_game.game_over,
-        'last_move': analysis_game.last_move.uci() if analysis_game.last_move else None,
-        'captured': {
-            'white': [p.symbol() for p in analysis_game.captured[chess.WHITE]],
-            'black': [p.symbol() for p in analysis_game.captured[chess.BLACK]],
-        },
-        'is_check': analysis_game.board.is_check(),
-        'move_history': build_move_history(analysis_game.board),
-    })
+@app.route('/api/tree', methods=['GET'])
+def get_tree():
+    """Return the full analysis tree + current node state."""
+    return jsonify(analysis_tree.serialize())
 
-@app.route('/api/move', methods=['POST'])
-def make_analysis_move():
+
+@app.route('/api/tree/move', methods=['POST'])
+def tree_move():
+    """Make a move from a specific node. Creates a branch if needed."""
     data = request.json
-    from_sq_str = data.get('from')
-    to_sq_str = data.get('to')
+    from_sq  = data.get('from')
+    to_sq    = data.get('to')
     promotion = data.get('promotion')
+    node_id  = data.get('node_id')  # which node to move from
 
     try:
-        from_sq = chess.parse_square(from_sq_str)
-        to_sq = chess.parse_square(to_sq_str)
-        
-        move = chess.Move(from_sq, to_sq)
-        if move not in analysis_game.board.legal_moves:
-            promo_move = chess.Move(from_sq, to_sq, promotion=chess.QUEEN)
-            if promo_move in analysis_game.board.legal_moves and not promotion:
-                return jsonify({'status': 'promotion_required'})
-            
-            if promotion:
-                pt = chess.Piece.from_symbol(promotion).piece_type
-                move = chess.Move(from_sq, to_sq, promotion=pt)
-
-        if move in analysis_game.board.legal_moves:
-            analysis_game._apply(move)
-            engine.analyze(analysis_game.board)
-            return get_analysis_state()
-        else:
-            return jsonify({'error': 'Illegal move'}), 400
-    except Exception as e:
+        node, is_new = analysis_tree.make_move(from_sq, to_sq, promotion, from_node_id=node_id)
+        # Re-analyze from current position
+        board = chess.Board(node.fen)
+        engine.analyze(board)
+        return jsonify(analysis_tree.serialize())
+    except PromotionRequired:
+        return jsonify({'status': 'promotion_required'})
+    except (KeyError, ValueError) as e:
         return jsonify({'error': str(e)}), 400
+
+
+@app.route('/api/tree/navigate', methods=['POST'])
+def tree_navigate():
+    """Navigate to a specific node by ID."""
+    data = request.json
+    node_id = data.get('node_id')
+    try:
+        node = analysis_tree.navigate_to(node_id)
+        board = chess.Board(node.fen)
+        engine.analyze(board)
+        return jsonify(analysis_tree.serialize())
+    except KeyError as e:
+        return jsonify({'error': str(e)}), 404
+
+
+@app.route('/api/tree/reset', methods=['POST'])
+def tree_reset():
+    """Reset the entire analysis tree."""
+    analysis_tree.reset()
+    board = chess.Board(analysis_tree.current().fen)
+    engine.analyze(board)
+    return jsonify(analysis_tree.serialize())
+
 
 @app.route('/api/analysis', methods=['GET'])
 def get_analysis():
-    lines = engine.get_san_lines(analysis_game.board)
+    """Get current engine analysis lines (for the current node's position)."""
+    current_node = analysis_tree.current()
+    board = chess.Board(current_node.fen)
+    lines = engine.get_san_lines(board)
     return jsonify({
         'depth': engine.depth,
         'status': engine.status,
         'lines': lines
     })
-
-@app.route('/api/state_at/<int:index>', methods=['GET'])
-def get_state_at(index):
-    """Return board state at a specific move index (0 = start, N = after N moves)."""
-    all_moves = list(analysis_game.board.move_stack)
-    total = len(all_moves)
-    index = max(0, min(index, total))
-
-    # Reconstruct board at that position
-    temp_board = chess.Board()
-    history = []
-    captured = {chess.WHITE: [], chess.BLACK: []}
-    last_move_uci = None
-
-    for i, move in enumerate(all_moves):
-        if i >= index:
-            break
-        san = temp_board.san(move)
-        history.append(san)
-        # Track captures
-        if temp_board.is_capture(move):
-            captured_piece = temp_board.piece_at(move.to_square)
-            if captured_piece:
-                capturing_color = temp_board.turn  # the side making the move captures the other's piece
-                if capturing_color == chess.WHITE:
-                    captured[chess.WHITE].append(captured_piece.symbol())
-                else:
-                    captured[chess.BLACK].append(captured_piece.symbol())
-        temp_board.push(move)
-        last_move_uci = move.uci()
-
-    castling = temp_board.castling_rights
-    castling_str = ''
-    if castling & chess.BB_H1: castling_str += 'K'
-    if castling & chess.BB_A1: castling_str += 'Q'
-    if castling & chess.BB_H8: castling_str += 'k'
-    if castling & chess.BB_A8: castling_str += 'q'
-    if not castling_str:
-        castling_str = '-'
-
-    return jsonify({
-        'fen': temp_board.fen(),
-        'turn': 'white' if temp_board.turn == chess.WHITE else 'black',
-        'game_over': None,
-        'last_move': last_move_uci,
-        'captured': {
-            'white': [p.symbol() for p in captured[chess.WHITE]],
-            'black': [p.symbol() for p in captured[chess.BLACK]],
-        },
-        'is_check': temp_board.is_check(),
-        'move_history': history,
-        'history_index': index,
-        'total_moves': total,
-    })
-
-@app.route('/api/reset', methods=['POST'])
-def reset_analysis():
-    analysis_game.reset()
-    engine.analyze(analysis_game.board)
-    return get_analysis_state()
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -467,6 +416,6 @@ def handle_disconnect():
 
 
 if __name__ == '__main__':
-    # Initial analysis
-    engine.analyze(analysis_game.board)
+    # Analyze the starting position
+    engine.analyze(chess.Board())
     socketio.run(app, host='0.0.0.0', port=5000, debug=False, allow_unsafe_werkzeug=True)
