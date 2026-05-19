@@ -21,7 +21,8 @@
 - **Real-Time Multiplayer**: Play against friends using a robust room-based system powered by **Flask-SocketIO**. Simply create a room and share the 4-digit code.
 - **Dual-Interface Architecture**: 
     - **Lobby/Play**: A dedicated interface for competitive play with time controls and color selection.
-    - **Analysis Board**: A professional-grade analysis tool with move-by-move engine evaluation.
+    - **Analysis Board**: A professional-grade analysis tool with move-by-move engine evaluation and branch analysis.
+- **Move Playback & Branching Tree**: Navigate through game history seamlessly using UI buttons, interactive move spans, or keyboard arrow keys. Play alternative moves at any point to create nested analysis branches (variations) rendered in a tree layout.
 - **Server-Side Stockfish Integration**: Professional engine analysis now runs on the backend, providing deep evaluation lines and move suggestions without impacting browser performance.
 - **Dynamic Time Controls**: Choose between Blitz (1m, 3m), Rapid (5m, 10m), or custom durations for multiplayer matches.
 
@@ -39,8 +40,10 @@
 ### Professional Analysis
 - **Stockfish 16+ Integration** — Access world-class engine evaluations directly in the Analysis view.
 - **Top Move Suggestions** — View the top 5 engine-recommended moves with their corresponding centipawn evaluation.
-- **Move History (SAN)** — Full move history tracking in Standard Algebraic Notation.
-- **Interactive Evaluation** — Replay any move and see how the engine's perspective changes in real-time.
+- **Interactive Move Playback** — Step through moves using on-screen buttons (⏮, ◀, ▶, ⏭), clicking directly on moves, or using keyboard arrow keys (Left/Right to step, Up/Down to jump to start/end).
+- **Branching Move Tree** — Try alternative moves from any point in the history to create and explore variations.
+- **Visual Branch Rendering** — Indented, nested tree structure layout showing main line and sub-variations with branch connectors.
+- **Interactive Evaluation** — Replay any move or branch variation and see how the engine's perspective changes in real-time.
 
 ### Core Chess Engine
 - **100% Rule Compliance** — Powered by `python-chess`, enforcing all rules including Castling, En Passant, and Pawn Promotion.
@@ -103,10 +106,11 @@ ChessGame/
 │   ├── lobby.js        # Multiplayer & SocketIO client logic
 │   ├── analysis_init.js # Analysis mode initialization
 │   ├── board.js        # Core board rendering
-│   └── state.js        # Client-side state management
+│   └── state.js        # Client-side state management (handles tree state & rendering)
 └── chess_py/           # Backend Core
     ├── state.py        # Game state & rule enforcement
-    └── engine.py       # Stockfish integration wrapper
+    ├── engine.py       # Stockfish integration wrapper
+    └── analysis_tree.py # Branching move tree structure
 ```
 
 ---
