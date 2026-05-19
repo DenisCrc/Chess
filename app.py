@@ -202,6 +202,60 @@ def get_analysis():
         'lines': lines
     })
 
+@app.route('/api/state_at/<int:index>', methods=['GET'])
+def get_state_at(index):
+    """Return board state at a specific move index (0 = start, N = after N moves)."""
+    all_moves = list(analysis_game.board.move_stack)
+    total = len(all_moves)
+    index = max(0, min(index, total))
+
+    # Reconstruct board at that position
+    temp_board = chess.Board()
+    history = []
+    captured = {chess.WHITE: [], chess.BLACK: []}
+    last_move_uci = None
+
+    for i, move in enumerate(all_moves):
+        if i >= index:
+            break
+        san = temp_board.san(move)
+        history.append(san)
+        # Track captures
+        if temp_board.is_capture(move):
+            captured_piece = temp_board.piece_at(move.to_square)
+            if captured_piece:
+                capturing_color = temp_board.turn  # the side making the move captures the other's piece
+                if capturing_color == chess.WHITE:
+                    captured[chess.WHITE].append(captured_piece.symbol())
+                else:
+                    captured[chess.BLACK].append(captured_piece.symbol())
+        temp_board.push(move)
+        last_move_uci = move.uci()
+
+    castling = temp_board.castling_rights
+    castling_str = ''
+    if castling & chess.BB_H1: castling_str += 'K'
+    if castling & chess.BB_A1: castling_str += 'Q'
+    if castling & chess.BB_H8: castling_str += 'k'
+    if castling & chess.BB_A8: castling_str += 'q'
+    if not castling_str:
+        castling_str = '-'
+
+    return jsonify({
+        'fen': temp_board.fen(),
+        'turn': 'white' if temp_board.turn == chess.WHITE else 'black',
+        'game_over': None,
+        'last_move': last_move_uci,
+        'captured': {
+            'white': [p.symbol() for p in captured[chess.WHITE]],
+            'black': [p.symbol() for p in captured[chess.BLACK]],
+        },
+        'is_check': temp_board.is_check(),
+        'move_history': history,
+        'history_index': index,
+        'total_moves': total,
+    })
+
 @app.route('/api/reset', methods=['POST'])
 def reset_analysis():
     analysis_game.reset()

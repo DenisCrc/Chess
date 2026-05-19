@@ -3,6 +3,7 @@
 // ============================================================
 board.addEventListener('click', async function (event) {
     if (isDragging) return;
+    if (isViewingHistory()) return; // block interaction when browsing history
     const target = event.target.closest('.square');
     if (!target) return;
 
@@ -47,6 +48,7 @@ let isDragging = false;
 let dragFrom = null;
 
 board.addEventListener('dragstart', function (event) {
+    if (isViewingHistory()) { event.preventDefault(); return; } // block when browsing history
     const square = event.target.closest('.square');
     if (!square) { event.preventDefault(); return; }
 
@@ -122,4 +124,31 @@ board.addEventListener('dragend', function (event) {
     clearSelection();
     dragFrom = null;
     setTimeout(() => { isDragging = false; }, 0);
+});
+
+// ============================================================
+// KEYBOARD NAVIGATION (Arrow keys for history playback)
+// ============================================================
+document.addEventListener('keydown', function (event) {
+    // Only on analysis page
+    if (typeof navigatePrev === 'undefined') return;
+
+    switch (event.key) {
+        case 'ArrowLeft':
+            event.preventDefault();
+            navigatePrev();
+            break;
+        case 'ArrowRight':
+            event.preventDefault();
+            navigateNext();
+            break;
+        case 'ArrowUp':
+            event.preventDefault();
+            navigateStart();
+            break;
+        case 'ArrowDown':
+            event.preventDefault();
+            navigateEnd();
+            break;
+    }
 });

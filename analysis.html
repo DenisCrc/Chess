@@ -123,6 +123,17 @@
                     <div class="move-history-header">
                         <span class="move-history-icon">📋</span>
                         <span>Istoric Mutări</span>
+                        <div class="history-nav" id="history-nav">
+                            <button class="nav-btn" id="nav-start" onclick="navigateStart()" title="Început (↑)" disabled>⏮</button>
+                            <button class="nav-btn" id="nav-prev"  onclick="navigatePrev()"  title="Înapoi (←)" disabled>◀</button>
+                            <button class="nav-btn" id="nav-next"  onclick="navigateNext()"  title="Înainte (→)" disabled>▶</button>
+                            <button class="nav-btn" id="nav-end"   onclick="navigateEnd()"   title="Sfârșit (↓)" disabled>⏭</button>
+                        </div>
+                    </div>
+                    <!-- Shown only when browsing history -->
+                    <div class="history-banner" id="history-banner" style="display:none">
+                        <span>📍 Mod revizuire</span>
+                        <button class="history-live-btn" onclick="navigateEnd()">↩ Live</button>
                     </div>
                     <div class="move-history-body" id="move-history-body">
                         <div class="move-history-empty">Nicio mutare încă.</div>

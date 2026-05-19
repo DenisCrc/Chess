@@ -1057,21 +1057,8 @@ body {
     overflow: hidden;
 }
 
-.move-history-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 18px 10px;
-    border-bottom: 1px solid var(--border-subtle);
-    background: rgba(255, 255, 255, 0.02);
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-}
 
-.move-history-icon {
-    font-size: 16px;
-}
+
 
 .move-history-body {
     max-height: 260px;
@@ -1138,8 +1125,9 @@ body {
     color: var(--text-primary);
     padding: 4px 8px;
     border-radius: 4px;
-    cursor: default;
+    cursor: pointer;
     min-width: 60px;
+    transition: background 0.12s, color 0.12s;
 }
 
 .move-white:hover,
@@ -1150,6 +1138,99 @@ body {
 .move-black {
     color: var(--text-secondary);
 }
+
+/* Active move highlight (currently viewed position) */
+.move--active {
+    background: var(--accent) !important;
+    color: #fff !important;
+    font-weight: 700;
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* ============================================================
+   HISTORY NAVIGATION BUTTONS
+   ============================================================ */
+.move-history-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(255, 255, 255, 0.02);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.move-history-icon {
+    font-size: 16px;
+}
+
+.history-nav {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.nav-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s var(--ease-out);
+    padding: 0;
+    line-height: 1;
+}
+
+.nav-btn:hover:not(:disabled) {
+    background: rgba(124, 92, 191, 0.15);
+    border-color: var(--accent);
+    color: var(--accent-hover);
+}
+
+.nav-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+/* History-browsing banner */
+.history-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 16px;
+    background: rgba(124, 92, 191, 0.10);
+    border-bottom: 1px solid rgba(124, 92, 191, 0.2);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent-hover);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.history-live-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.history-live-btn:hover {
+    background: var(--accent-hover);
+}
+
 
 /* ============================================================
    RESPONSIVE
