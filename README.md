@@ -40,7 +40,7 @@
 ### Professional Analysis
 - **Stockfish 16+ Integration** — Access world-class engine evaluations directly in the Analysis view.
 - **Top Move Suggestions** — View the top 5 engine-recommended moves with their corresponding centipawn evaluation.
-- **Interactive Move Playback** — Step through moves using on-screen buttons (⏮, ◀, ▶, ⏭), clicking directly on moves, or using keyboard arrow keys (Left/Right to step, Up/Down to jump to start/end).
+- **Interactive Move Playback** — Step through moves using on-screen buttons, clicking directly on moves, or using keyboard arrow keys (Left/Right to step, Up/Down to jump to start/end).
 - **Branching Move Tree** — Try alternative moves from any point in the history to create and explore variations.
 - **Visual Branch Rendering** — Indented, nested tree structure layout showing main line and sub-variations with branch connectors.
 - **Interactive Evaluation** — Replay any move or branch variation and see how the engine's perspective changes in real-time.
@@ -135,12 +135,5 @@ ChessGame/
 - [ ] **PGN/FEN Import**: Load external games for analysis.
 - [ ] **Custom Themes**: Selectable board colors and piece sets.
 
----
-
-<div align="center">
-
-**Built with focus and dedication**
-
-Star this repository if you find it useful!
 
 </div>
