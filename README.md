@@ -5,10 +5,6 @@
 **A beautifully crafted, fully interactive chess game with real-time multiplayer and professional engine analysis.**
 
 
-[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/Flask-2.0+-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
-[![Socket.io](https://img.shields.io/badge/Socket.io-4.0+-010101?style=for-the-badge&logo=socket.io&logoColor=white)](https://socket.io/)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 
 [Features](#features) · [What's New](#whats-new) · [Getting Started](#getting-started) · [How to Play](#how-to-play) · [Project Structure](#project-structure)
 
